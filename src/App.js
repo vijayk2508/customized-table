@@ -3,7 +3,7 @@ import CustomizeTable from "./CustomizeTable";
 
 function App() {
   return (
-    <div className="container">
+    <div data-testid="customize-table" className="container">
       <CustomizeTable />
     </div>
   );
