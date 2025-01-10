@@ -233,6 +233,7 @@ function CustomizeTable() {
       sensors={sensors}
     >
       <div className="p-2">
+      test
         <table className="table table-bordered">
           <thead className="thead-light">
             {table.getHeaderGroups().map((headerGroup) => (
