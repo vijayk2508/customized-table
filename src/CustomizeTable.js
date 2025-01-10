@@ -86,7 +86,7 @@ const DragAlongCell = ({ cell }) => {
 /* row order functions */
 // Cell Component
 const RowDragHandleCell = (props) => {
-  const { rowId, row } = props;
+  const { rowId } = props;
   const { attributes, listeners } = useSortable({ id: rowId });
   return (
     <button {...attributes} {...listeners} className="btn">
