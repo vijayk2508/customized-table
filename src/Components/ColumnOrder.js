@@ -1,17 +1,13 @@
-import React, { useMemo, useState, CSSProperties } from 'react';
-import ReactDOM from 'react-dom/client';
+import React, { useMemo, useState } from 'react';
 
 import './index.css';
 
 import {
-  Cell,
-  ColumnDef,
-  Header,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { makeData, Person } from '../fakeDate/makeData';
+import { makeData } from '../fakeDate/makeData';
 
 // needed for table body level scope DnD setup
 import {
@@ -25,13 +21,13 @@ import {
 } from '@dnd-kit/core';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import {
+  useSortable,
   arrayMove,
   SortableContext,
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
 // needed for row & cell level scope DnD setup
-import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 const DraggableTableHeader = ({ header }) => {

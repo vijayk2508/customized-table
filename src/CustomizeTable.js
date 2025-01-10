@@ -1,10 +1,6 @@
-import React, { useMemo, useState } from "react";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { makeData } from "./fakeDate/makeData";
+import PropTypes from "prop-types";
+import React, { useMemo, useState, useEffect } from "react";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import {
   DndContext,
   KeyboardSensor,
@@ -19,107 +15,12 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
   verticalListSortingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import DraggableTableHeader from "./Components/DraggableTableHeader";
+import DraggableRow from "./Components/DraggableRow";
+import RowDragHandleCell from "./Components/RowDragHandleCell";
 
-/* column order functions */
-const DraggableTableHeader = ({ header }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } =
-    useSortable({
-      id: header.column.id,
-    });
-
-  const style = {
-    opacity: isDragging ? 0.8 : 1,
-    position: "relative",
-    transform: CSS.Translate.toString(transform),
-    transition: "width transform 0.2s ease-in-out",
-    whiteSpace: "nowrap",
-    width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-  };
-
-  return (
-    <th
-      colSpan={header.colSpan}
-      ref={setNodeRef}
-      style={style}
-      className="text-center"
-    >
-      {header.isPlaceholder
-        ? null
-        : flexRender(header.column.columnDef.header, header.getContext())}
-      {header.column.id === "column-drag-handle" ? (
-        <></>
-      ) : (
-        <button {...attributes} {...listeners} className="btn">
-          🟰
-        </button>
-      )}
-    </th>
-  );
-};
-
-const DragAlongCell = ({ cell }) => {
-  const { isDragging, setNodeRef, transform } = useSortable({
-    id: cell.id,
-  });
-
-  const style = {
-    opacity: isDragging ? 0.8 : 1,
-    position: "relative",
-    transform: CSS.Translate.toString(transform),
-    transition: "width transform 0.2s ease-in-out",
-    width: cell.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-  };
-
-  return (
-    <td style={style} ref={setNodeRef} className="text-center">
-      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-    </td>
-  );
-};
-/* column order functions */
-
-/* row order functions */
-// Cell Component
-const RowDragHandleCell = (props) => {
-  const { rowId } = props;
-  const { attributes, listeners } = useSortable({ id: rowId });
-  return (
-    <button {...attributes} {...listeners} className="btn">
-      🟰
-    </button>
-  );
-};
-
-// Row Component
-const DraggableRow = ({ row }) => {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.id,
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition: transition,
-    opacity: isDragging ? 0.8 : 1,
-    zIndex: isDragging ? 1 : 0,
-    position: "relative",
-  };
-
-  return (
-    <tr ref={setNodeRef} style={style}>
-      {row.getVisibleCells().map((cell) => (
-        <DragAlongCell key={cell.id} cell={cell} />
-      ))}
-    </tr>
-  );
-};
-/* row order functions */
-
-function CustomizeTable() {
+function CustomizeTable({ fetchData }) {
   const columns = useMemo(
     () => [
       {
@@ -169,18 +70,27 @@ function CustomizeTable() {
     []
   );
 
-  const [data, setData] = useState(() => makeData(20));
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [columnOrder, setColumnOrder] = useState(() =>
     columns.map((c) => c.id)
   );
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const result = await fetchData();
+      setData(result);
+      setLoading(false);
+    }
+    loadData();
+  }, [fetchData]);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    state: {
-      columnOrder,
-    },
+    state: { columnOrder },
     onColumnOrderChange: setColumnOrder,
     getRowId: (row) => `row-${row.id}`,
     debugTable: true,
@@ -233,39 +143,47 @@ function CustomizeTable() {
       sensors={sensors}
     >
       <div className="p-2">
-        <table className="table table-bordered">
-          <thead className="thead-light">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                <SortableContext
-                  items={columnOrder}
-                  strategy={horizontalListSortingStrategy}
-                >
-                  {headerGroup.headers.map((header) => (
-                    <DraggableTableHeader key={header.id} header={header} />
-                  ))}
-                </SortableContext>
-              </tr>
-            ))}
-          </thead>
-          <SortableContext
-            items={table.getRowModel().rows.map((row) => `row-${row.id}`)}
-            strategy={verticalListSortingStrategy}
-          >
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <DraggableRow
-                  key={row.id}
-                  row={row}
-                  columnOrder={columnOrder}
-                />
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <table className="table table-bordered">
+            <thead className="thead-light">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  <SortableContext
+                    items={columnOrder}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    {headerGroup.headers.map((header) => (
+                      <DraggableTableHeader key={header.id} header={header} />
+                    ))}
+                  </SortableContext>
+                </tr>
               ))}
-            </tbody>
-          </SortableContext>
-        </table>
+            </thead>
+            <SortableContext
+              items={table.getRowModel().rows.map((row) => `row-${row.id}`)}
+              strategy={verticalListSortingStrategy}
+            >
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <DraggableRow
+                    key={row.id}
+                    row={row}
+                    columnOrder={columnOrder}
+                  />
+                ))}
+              </tbody>
+            </SortableContext>
+          </table>
+        )}
       </div>
     </DndContext>
   );
 }
+
+CustomizeTable.propTypes = {
+  fetchData: PropTypes.func.isRequired,
+};
 
 export default CustomizeTable;
