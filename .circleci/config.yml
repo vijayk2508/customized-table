@@ -1,60 +1,58 @@
 version: 2.1
-orbs:
-  node: circleci/node@5
-  evals: circleci/evals@2.0
+
 jobs:
-  test-node:
-    executor: node/default
+  test:
+    docker:
+      - image: circleci/node:latest
+    working_directory: ~/project
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: npm
+      - run:
+          name: Install dependencies
+          command: npm install
       - run:
           name: Run tests
-          command: npm test --passWithNoTests
-  build-node:
-    executor: node/default
+          command: npm test
+
+  build:
+    docker:
+      - image: circleci/node:latest
+    working_directory: ~/project
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: npm
       - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Build project
           command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts
-            2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - build
+
   deploy:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/node:latest
+    working_directory: ~/project
     steps:
+      - attach_workspace:
+          at: ~/project
       - run:
-          name: deploy
-          command: "#e.g. ./deploy.sh"
-  evals-test-assertions-job:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - evals/test:
-          assertions: assertions.json
-          metrics: eval_results.json
-          results: test_results.xml
+          name: Install Netlify CLI
+          command: npm install -g netlify-cli
+      - run:
+          name: Deploy to Netlify
+          command: |
+            netlify deploy --prod --dir=build --auth=$NETLIFY_AUTH_TOKEN
+
 workflows:
-  build-and-test:
+  build_and_deploy:
     jobs:
-      - test-node:
-          context: []
-      - build-node:
+      - test
+      - build:
           requires:
-            - test-node
-          context: []
-  test-eval-workflow:
-    jobs:
-      - evals-test-assertions-job
+            - test
+      - deploy:
+          requires:
+            - build
