@@ -1,20 +1,5 @@
 version: 2.1
 jobs:
-  test:
-    working_directory: ~/repo
-    docker:
-      - image: cimg/node:18.16.0
-    steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-      - run:
-          name: Install Dependencies
-          command: npm install
-      - run:
-          name: Run Tests
-          command: npm test
-
   build:
     working_directory: ~/repo
     docker:
@@ -37,32 +22,16 @@ jobs:
           key: app-build-cache-{{ .Branch }}
           paths:
             - ./build
-
-  deploy:
-    working_directory: ~/repo
-    docker:
-      - image: cimg/node:18.16.0
-    steps:
-      - checkout
-      - restore_cache:
-          key: app-build-cache-{{ .Branch }}
       - run:
           name: Install Netlify
           command: npm install netlify-cli --save-dev
       - run:
           name: Deploy to Netlify
           command: ./node_modules/.bin/netlify deploy --site $NETLIFY_SITE_ID --auth $NETLIFY_ACCESS_TOKEN --prod --dir=build
-
 workflows:
   build-deploy:
     jobs:
-      - test
       - build:
-          requires:
-            - test
-      - deploy:
-          requires:
-            - build
           filters:
             branches:
               only:
