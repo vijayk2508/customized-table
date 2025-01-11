@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, memo } from "react";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import {
   DndContext,
@@ -10,64 +10,32 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import DraggableTableHeader from "./Components/DraggableTableHeader";
-import DraggableRow from "./Components/DraggableRow";
+import { arrayMove } from "@dnd-kit/sortable";
 import RowDragHandleCell from "./Components/RowDragHandleCell";
+import TableHeader from "./Components/TableHeader";
+import TableBody from "./Components/TableBody";
+import TableFooter from "./Components/TableFooter";
 
-function CustomizeTable({ fetchData }) {
+function CustomizeTable({
+  fetchData,
+  columns: customColumns = [],
+  icon = null,
+}) {
+  console.log(customColumns);
+
   const columns = useMemo(
     () => [
       {
         id: "column-drag-handle",
         header: "",
-        cell: ({ row }) => <RowDragHandleCell rowId={row.id} {...{ row }} />,
+        cell: (row) => (
+          <RowDragHandleCell rowId={row.id} {...{ row }} icon={icon} />
+        ),
         size: 60,
       },
-      {
-        accessorKey: "firstName",
-        cell: (info) => info.getValue(),
-        id: "column-firstName",
-        size: 150,
-      },
-      {
-        accessorFn: (row) => row.lastName,
-        cell: (info) => info.getValue(),
-        header: () => <span>Last Name</span>,
-        id: "column-lastName",
-        size: 150,
-      },
-      {
-        accessorKey: "age",
-        header: () => "Age",
-        id: "column-age",
-        size: 120,
-      },
-      {
-        accessorKey: "visits",
-        header: () => <span>Visits</span>,
-        id: "column-visits",
-        size: 120,
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        id: "column-status",
-        size: 150,
-      },
-      {
-        accessorKey: "progress",
-        header: "Profile Progress",
-        id: "column-progress",
-        size: 180,
-      },
+      ...customColumns,
     ],
-    []
+    [customColumns, icon]
   );
 
   const [data, setData] = useState([]);
@@ -143,47 +111,21 @@ function CustomizeTable({ fetchData }) {
       sensors={sensors}
     >
       <div className="p-2">
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <table className="table table-bordered">
-            <thead className="thead-light">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  <SortableContext
-                    items={columnOrder}
-                    strategy={horizontalListSortingStrategy}
-                  >
-                    {headerGroup.headers.map((header) => (
-                      <DraggableTableHeader key={header.id} header={header} />
-                    ))}
-                  </SortableContext>
-                </tr>
-              ))}
-            </thead>
-            <SortableContext
-              items={table.getRowModel().rows.map((row) => `row-${row.id}`)}
-              strategy={verticalListSortingStrategy}
-            >
-              <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <DraggableRow
-                    key={row.id}
-                    row={row}
-                    columnOrder={columnOrder}
-                  />
-                ))}
-              </tbody>
-            </SortableContext>
-          </table>
-        )}
+      
+        <table className="table table-bordered">
+          <TableHeader {...{ table, columnOrder }} />
+          <TableBody {...{ table, columnOrder, loading }} />
+          <TableFooter {...{ table, columnOrder}} />
+        </table>
       </div>
     </DndContext>
   );
 }
 
 CustomizeTable.propTypes = {
+  columns: PropTypes.any,
   fetchData: PropTypes.func.isRequired,
+  icon: PropTypes.any,
 };
 
-export default CustomizeTable;
+export default memo(CustomizeTable);
