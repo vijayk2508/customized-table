@@ -3,27 +3,37 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import React from "react";
+import React, { useMemo } from "react";
 import DraggableRow from "./DraggableRow";
 import TableLoader from "./TableLoader";
 
 function TableBody({ table, columnOrder, loading }) {
+  const rows = table.getRowModel().rows;
+
+  let content = useMemo(() => {
+    if (loading) {
+      return <TableLoader columns={columnOrder} />;
+    } else if (rows.length === 0) {
+      return (
+        <tr>
+          <td colSpan={columnOrder.length} className="text-center align-middle">
+            No data available
+          </td>
+        </tr>
+      );
+    } else {
+      return rows.map((row) => (
+        <DraggableRow key={row.id} row={row} columnOrder={columnOrder} />
+      ));
+    }
+  }, [columnOrder, loading, rows]);
+
   return (
     <SortableContext
-      items={table.getRowModel().rows.map((row) => `row-${row.id}`)}
+      items={rows.map((row) => `row-${row.id}`)}
       strategy={verticalListSortingStrategy}
     >
-      <tbody style={{ minHeight: "500px",  height: "500px" }}>
-        {loading ? (
-          <TableLoader columns={columnOrder}/>
-        ) : (
-          table
-            .getRowModel()
-            .rows.map((row) => (
-              <DraggableRow key={row.id} row={row} columnOrder={columnOrder} />
-            ))
-        )}
-      </tbody>
+      <tbody>{content}</tbody>
     </SortableContext>
   );
 }

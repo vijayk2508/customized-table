@@ -40,9 +40,7 @@ function CustomizeTable({
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [columnOrder, setColumnOrder] = useState(() =>
-    columns.map((c) => c.id)
-  );
+  const [columnOrder, setColumnOrder] = useState(() => columns.map((c) => c.id));
 
   useEffect(() => {
     async function loadData() {
@@ -111,8 +109,7 @@ function CustomizeTable({
       sensors={sensors}
     >
       <div className="p-2">
-      
-        <table className="table table-bordered">
+        <table className="table table-bordered" style={{height : 500}}>
           <TableHeader {...{ table, columnOrder }} />
           <TableBody {...{ table, columnOrder, loading }} />
           <TableFooter {...{ table, columnOrder}} />
@@ -123,7 +120,7 @@ function CustomizeTable({
 }
 
 CustomizeTable.propTypes = {
-  columns: PropTypes.any,
+  columns: PropTypes.array,
   fetchData: PropTypes.func.isRequired,
   icon: PropTypes.any,
 };

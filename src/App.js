@@ -1,13 +1,12 @@
 import React, { useEffect } from "react";
 import CustomizeTable from "./CustomizeTable";
 import axios from "axios";
+import RowOrder from "./Components/RowOrder";
 
 function App() {
   const fetchData = async () => {
-     const res = await axios('https://jsonplaceholder.typicode.com/users')
-     console.log(res.data);
-     return []
-     
+    const res = await axios("https://jsonplaceholder.typicode.com/users");
+    return res.data;
   };
 
   useEffect(() => {
@@ -16,47 +15,30 @@ function App() {
 
   const columns = [
     {
-      accessorKey: "firstName",
+      accessorKey: "id",
       cell: (info) => info.getValue(),
-      id: "column-firstName",
+      id: "column-id",
       size: 150,
     },
     {
-      accessorFn: (row) => row.lastName,
+      accessorFn: (row) => row.name,
       cell: (info) => info.getValue(),
-      header: () => <span>Last Name</span>,
-      id: "column-lastName",
+      header: () => <span>Name</span>,
+      id: "column-name",
       size: 150,
     },
     {
-      accessorKey: "age",
-      header: () => "Age",
-      id: "column-age",
+      accessorKey: "username",
+      header: () => "username",
+      id: "column-username",
       size: 120,
     },
-    {
-      accessorKey: "visits",
-      header: () => <span>Visits</span>,
-      id: "column-visits",
-      size: 120,
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      id: "column-status",
-      size: 150,
-    },
-    {
-      accessorKey: "progress",
-      header: "Profile Progress",
-      id: "column-progress",
-      size: 180,
-    },
-  ]
+  ];
 
   return (
     <div data-testid="customize-table" className="container">
-      <CustomizeTable fetchData={fetchData} columns={columns}/>
+      {/* <CustomizeTable fetchData={fetchData} columns={columns} /> */}
+      <RowOrder />
     </div>
   );
 }
