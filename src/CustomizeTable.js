@@ -11,15 +11,13 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import RowDragHandleCell from "./Components/RowDragHandleCell";
 import TableHeader from "./Components/TableHeader";
 import TableFooter from "./Components/TableFooter";
 import TableBody from "./Components/TableBody";
 
 function CustomizeTable({
   fetchData,
-  columns: customColumns = [],
-  icon = null,
+  columns: customColumns = []
 }) {
   const columns = useMemo(
     () => [
@@ -27,13 +25,13 @@ function CustomizeTable({
         id: "drag-handle",
         header: "",
         cell: ({ row }) => {
-          return <RowDragHandleCell row={row} icon={icon} />;
+          return row.index+1
         },
         size: 60,
       },
       ...customColumns,
     ],
-    [customColumns, icon]
+    [customColumns]
   );
 
   const [data, setData] = useState([]);
@@ -63,6 +61,7 @@ function CustomizeTable({
     debugTable: true,
     debugHeaders: true,
     debugColumns: true,
+    columnResizeMode : "onChange",
   });
 
   // reorder columns and rows after drag & drop

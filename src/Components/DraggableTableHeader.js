@@ -26,17 +26,12 @@ const DraggableTableHeader = ({ header }) => {
       ref={setNodeRef}
       style={style}
       className="text-center"
+      {...attributes}
+      {...listeners}
     >
       {header.isPlaceholder
         ? null
         : flexRender(header.column.columnDef.header, header.getContext())}
-      {header.column.id === "column-drag-handle" ? (
-        <></>
-      ) : (
-        <button {...attributes} {...listeners} className="btn">
-          🟰
-        </button>
-      )}
     </th>
   );
 };

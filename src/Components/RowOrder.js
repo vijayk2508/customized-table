@@ -89,7 +89,6 @@ function RowOrder() {
   );
 
   const [data, setData] = useState(() => makeData(20));
-console.log(data);
 
   const table = useReactTable({
     data,

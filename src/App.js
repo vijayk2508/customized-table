@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import CustomizeTable from "./CustomizeTable";
 import axios from "axios";
-import RowOrder from "./Components/RowOrder";
 
 function App() {
   const fetchData = async () => {
@@ -38,7 +37,6 @@ function App() {
   return (
     <div data-testid="customize-table" className="container">
       <CustomizeTable fetchData={fetchData} columns={columns} />
-      {/* <RowOrder /> */}
     </div>
   );
 }
