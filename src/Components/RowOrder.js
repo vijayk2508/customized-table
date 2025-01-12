@@ -1,15 +1,11 @@
 import React, { useMemo, useState } from "react";
-
 import {
-  ColumnDef,
-  Row,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { makeData } from "../fakeDate/makeData";
 
-// needed for table body level scope DnD setup
 import {
   DndContext,
   KeyboardSensor,
@@ -26,40 +22,35 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-
-// needed for row & cell level scope DnD setup
-
 import { CSS } from "@dnd-kit/utilities";
 
-// Cell Component
+// Drag handle component
 const RowDragHandleCell = ({ rowId }) => {
   const { attributes, listeners } = useSortable({
     id: rowId,
   });
   return (
-    // Alternatively, you could set these attributes on the rows themselves
-    <button {...attributes} {...listeners}>
+    <button {...attributes} {...listeners} style={{ cursor: "grab" }}>
       🟰
     </button>
   );
 };
 
-// Row Component
+// Draggable row component
 const DraggableRow = ({ row }) => {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.userId,
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: row.id, // Use row's ID directly here
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform), //let dnd-kit do its thing
-    transition: transition,
-    opacity: isDragging ? 0.8 : 1,
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 1 : 0,
-    position: "relative",
   };
+
   return (
-    // connect row ref to dnd-kit, apply important styles
-    <tr ref={setNodeRef} style={style}>
+    <tr ref={setNodeRef} style={style} {...attributes} {...listeners}>
       {row.getVisibleCells().map((cell) => (
         <td key={cell.id} style={{ width: cell.column.getSize() }}>
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -69,11 +60,10 @@ const DraggableRow = ({ row }) => {
   );
 };
 
-// Table Component
+// Main table component
 function RowOrder() {
   const columns = useMemo(
     () => [
-      // Create a dedicated drag handle column. Alternatively, you could just set up dnd events on the rows themselves.
       {
         id: "drag-handle",
         header: "Move",
@@ -94,62 +84,47 @@ function RowOrder() {
         accessorKey: "age",
         header: () => "Age",
       },
-      {
-        accessorKey: "visits",
-        header: () => <span>Visits</span>,
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-      },
-      {
-        accessorKey: "progress",
-        header: "Profile Progress",
-      },
     ],
     []
   );
+
   const [data, setData] = useState(() => makeData(20));
-
-  const dataIds = useMemo(() => data?.map(({ userId }) => userId), [data]);
-
-  const rerender = () => setData(() => makeData(20));
+console.log(data);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getRowId: (row) => row.userId, //required because row indexes will change
-    debugTable: true,
-    debugHeaders: true,
-    debugColumns: true,
+    getRowId: (row) => row.id, // Make sure each row has a unique `id`
   });
 
-  // reorder rows after drag & drop
-  function handleDragEnd(event) {
+  // Handle drag end
+  const handleDragEnd = (event) => {
     const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id);
-        const newIndex = dataIds.indexOf(over.id);
-        return arrayMove(data, oldIndex, newIndex); //this is just a splice util
-      });
-    }
-  }
+  
+    console.log({ active, over });
+  
+    if (!over || active.id === over.id) return;
+
+    setData((oldData) => {
+      const oldIndex = oldData.findIndex((row) => `${row.id}` === active.id);
+      const newIndex = oldData.findIndex((row) => `${row.id}` === over.id);
+      return arrayMove(oldData, oldIndex, newIndex);
+    });
+  };
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {})
+    useSensor(MouseSensor),
+    useSensor(TouchSensor),
+    useSensor(KeyboardSensor)
   );
 
   return (
-    // NOTE: This provider creates div elements, so don't nest inside of <table> elements
     <DndContext
       collisionDetection={closestCenter}
       modifiers={[restrictToVerticalAxis]}
-      onDragEnd={handleDragEnd}
       sensors={sensors}
+      onDragEnd={handleDragEnd}
     >
       <table>
         <thead>
@@ -170,7 +145,7 @@ function RowOrder() {
         </thead>
         <tbody>
           <SortableContext
-            items={dataIds}
+            items={data.map((row) => row.id)} // Ensure the item IDs are unique (use row.id)
             strategy={verticalListSortingStrategy}
           >
             {table.getRowModel().rows.map((row) => (

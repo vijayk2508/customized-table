@@ -3,19 +3,22 @@ import { useSortable } from "@dnd-kit/sortable";
 import React from "react";
 
 const RowDragHandleCell = (props) => {
-  const { rowId, icon: Icon = null } = props;
-  const { attributes, listeners } = useSortable({ id: rowId });
+  const { row } = props;
+  const data = useSortable({ id: `row-${row.id}` });
 
+  const { attributes, listeners } = data;
   return (
-    <button {...attributes} {...listeners} className="btn">
-      {Icon ? <Icon /> : "🟰"}
-    </button>
+    <span {...attributes} {...listeners}>
+      {row.index + 1}
+    </span>
   );
 };
 
 RowDragHandleCell.propTypes = {
-  icon: PropTypes.elementType, // Ensure icon is a valid React component
-  rowId: PropTypes.any,
+  row: PropTypes.shape({
+    id: PropTypes.number,
+    index: PropTypes.number,
+  }),
 };
 
 export default RowDragHandleCell;

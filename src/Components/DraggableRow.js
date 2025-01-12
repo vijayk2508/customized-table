@@ -5,20 +5,28 @@ import DragAlongCell from "./DragAlongCell";
 import { CSS } from "@dnd-kit/utilities";
 
 const DraggableRow = ({ row }) => {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.id,
+  // Ensure the row has a valid id, and use `row.id` directly
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: row.id, // Use the actual row ID
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: transition,
+    transition,
     opacity: isDragging ? 0.8 : 1,
     zIndex: isDragging ? 1 : 0,
     position: "relative",
   };
 
   return (
-    <tr ref={setNodeRef} style={style}>
+    <tr ref={setNodeRef} style={style} {...attributes} {...listeners}>
       {row.getVisibleCells().map((cell) => (
         <DragAlongCell key={cell.id} cell={cell} />
       ))}

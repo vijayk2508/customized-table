@@ -30,7 +30,7 @@ function TableBody({ table, columnOrder, loading }) {
 
   return (
     <SortableContext
-      items={rows.map((row) => `row-${row.id}`)}
+      items={rows.map((row) => row.id)} // Ensure the item IDs are unique (row.id directly)
       strategy={verticalListSortingStrategy}
     >
       <tbody>{content}</tbody>

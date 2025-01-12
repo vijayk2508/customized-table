@@ -13,24 +13,22 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 import RowDragHandleCell from "./Components/RowDragHandleCell";
 import TableHeader from "./Components/TableHeader";
-import TableBody from "./Components/TableBody";
 import TableFooter from "./Components/TableFooter";
+import TableBody from "./Components/TableBody";
 
 function CustomizeTable({
   fetchData,
   columns: customColumns = [],
   icon = null,
 }) {
-  console.log(customColumns);
-
   const columns = useMemo(
     () => [
       {
-        id: "column-drag-handle",
+        id: "drag-handle",
         header: "",
-        cell: (row) => (
-          <RowDragHandleCell rowId={row.id} {...{ row }} icon={icon} />
-        ),
+        cell: ({ row }) => {
+          return <RowDragHandleCell row={row} icon={icon} />;
+        },
         size: 60,
       },
       ...customColumns,
@@ -39,8 +37,11 @@ function CustomizeTable({
   );
 
   const [data, setData] = useState([]);
+
   const [loading, setLoading] = useState(true);
-  const [columnOrder, setColumnOrder] = useState(() => columns.map((c) => c.id));
+  const [columnOrder, setColumnOrder] = useState(() =>
+    columns.map((c) => c.id)
+  );
 
   useEffect(() => {
     async function loadData() {
@@ -67,13 +68,7 @@ function CustomizeTable({
   // reorder columns and rows after drag & drop
   function handleDragEnd(event) {
     const { active, over } = event;
-
-    if (
-      !over ||
-      active?.id === "column-drag-handle" ||
-      over?.id === "column-drag-handle"
-    )
-      return;
+    if (!over || active.id === over.id) return;
 
     if (active.id.startsWith("column-") && over.id.startsWith("column-")) {
       if (active.id !== over.id) {
@@ -87,9 +82,11 @@ function CustomizeTable({
       if (active.id !== over.id) {
         setData((data) => {
           const oldIndex = data.findIndex(
-            (row) => `row-${row.id}` === active.id
+            (row) => row.id === parseInt(active.id.split("-")[1])
           );
-          const newIndex = data.findIndex((row) => `row-${row.id}` === over.id);
+          const newIndex = data.findIndex(
+            (row) => row.id === parseInt(over.id.split("-")[1])
+          );
           return arrayMove(data, oldIndex, newIndex);
         });
       }
@@ -109,10 +106,10 @@ function CustomizeTable({
       sensors={sensors}
     >
       <div className="p-2">
-        <table className="table table-bordered" style={{height : 500}}>
+        <table className="table table-bordered" style={{ height: 500 }}>
           <TableHeader {...{ table, columnOrder }} />
           <TableBody {...{ table, columnOrder, loading }} />
-          <TableFooter {...{ table, columnOrder}} />
+          <TableFooter {...{ table, columnOrder }} />
         </table>
       </div>
     </DndContext>

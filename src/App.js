@@ -37,8 +37,8 @@ function App() {
 
   return (
     <div data-testid="customize-table" className="container">
-      {/* <CustomizeTable fetchData={fetchData} columns={columns} /> */}
-      <RowOrder />
+      <CustomizeTable fetchData={fetchData} columns={columns} />
+      {/* <RowOrder /> */}
     </div>
   );
 }
