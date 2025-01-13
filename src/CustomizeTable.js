@@ -117,8 +117,7 @@ function CustomizeTable({
 
 CustomizeTable.propTypes = {
   columns: PropTypes.array,
-  fetchData: PropTypes.func.isRequired,
-  icon: PropTypes.any,
+  fetchData: PropTypes.func.isRequired
 };
 
 export default memo(CustomizeTable);
