@@ -15,17 +15,14 @@ import TableHeader from "./Components/TableHeader";
 import TableFooter from "./Components/TableFooter";
 import TableBody from "./Components/TableBody";
 
-function CustomizeTable({
-  fetchData,
-  columns: customColumns = []
-}) {
+function CustomizeTable({ fetchData, columns: customColumns = [] }) {
   const columns = useMemo(
     () => [
       {
         id: "drag-handle",
         header: "",
         cell: ({ row }) => {
-          return row.index+1
+          return row.index + 1;
         },
         size: 60,
       },
@@ -61,7 +58,7 @@ function CustomizeTable({
     debugTable: true,
     debugHeaders: true,
     debugColumns: true,
-    columnResizeMode : "onChange",
+    columnResizeMode: "onChange",
   });
 
   // reorder columns and rows after drag & drop
@@ -69,26 +66,24 @@ function CustomizeTable({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
+    if (typeof active.id !== "string" || typeof over.id !== "string") return;
+
     if (active.id.startsWith("column-") && over.id.startsWith("column-")) {
-      if (active.id !== over.id) {
-        setColumnOrder((columnOrder) => {
-          const oldIndex = columnOrder.indexOf(active.id);
-          const newIndex = columnOrder.indexOf(over.id);
-          return arrayMove(columnOrder, oldIndex, newIndex);
-        });
-      }
+      setColumnOrder((columnOrder) => {
+        const oldIndex = columnOrder.indexOf(active.id);
+        const newIndex = columnOrder.indexOf(over.id);
+        return arrayMove(columnOrder, oldIndex, newIndex);
+      });
     } else if (active.id.startsWith("row-") && over.id.startsWith("row-")) {
-      if (active.id !== over.id) {
-        setData((data) => {
-          const oldIndex = data.findIndex(
-            (row) => row.id === parseInt(active.id.split("-")[1])
-          );
-          const newIndex = data.findIndex(
-            (row) => row.id === parseInt(over.id.split("-")[1])
-          );
-          return arrayMove(data, oldIndex, newIndex);
-        });
-      }
+      setData((data) => {
+        const oldIndex = data.findIndex(
+          (row) => row.id === parseInt(active.id.split("-")[1])
+        );
+        const newIndex = data.findIndex(
+          (row) => row.id === parseInt(over.id.split("-")[1])
+        );
+        return arrayMove(data, oldIndex, newIndex);
+      });
     }
   }
 
@@ -117,7 +112,7 @@ function CustomizeTable({
 
 CustomizeTable.propTypes = {
   columns: PropTypes.array,
-  fetchData: PropTypes.func.isRequired
+  fetchData: PropTypes.func.isRequired,
 };
 
 export default memo(CustomizeTable);
