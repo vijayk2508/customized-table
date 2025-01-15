@@ -11,9 +11,9 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import TableHeader from "./Components/TableHeader";
-import TableFooter from "./Components/TableFooter";
-import TableBody from "./Components/TableBody";
+import TableHeader from "../TanStackComponents/TableHeader";
+import TableFooter from "../TanStackComponents/TableFooter";
+import TableBody from "../TanStackComponents/TableBody";
 
 function CustomizeTable({ fetchData, columns: customColumns = [] }) {
   const columns = useMemo(
