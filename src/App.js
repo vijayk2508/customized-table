@@ -1,6 +1,10 @@
-import React from "react";
-function ReactGridTable() {
-  return <div data-testid="customize-table" className="container"></div>;
+import React from 'react'
+import TabularTable from './Components/TabularTable'
+
+function App() {
+  return (
+    <TabularTable />
+  )
 }
 
-export default ReactGridTable;
+export default App
