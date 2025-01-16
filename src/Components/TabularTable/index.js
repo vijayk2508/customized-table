@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
+import ResizeObserver from "resize-observer-polyfill";
 
 const ReactTabulator = () => {
   const ref = useRef();
@@ -38,7 +39,23 @@ const ReactTabulator = () => {
             last_page,
           };
         },
+        paginationSizeSelector: [5, 10, 20, 50, 100],
+        movableColumns: true,
+        movableRows: true,
+        layout: "fitColumns",
       });
+
+      const resizeObserver = new ResizeObserver(() => {
+        if (instanceRef.current) {
+          instanceRef.current.redraw(true); // Force redraw
+        }
+      });
+
+      resizeObserver.observe(domEle);
+
+      return () => {
+        resizeObserver.disconnect();
+      };
     } catch (error) {
       console.error("Error initializing Tabulator:", error);
     }
@@ -54,13 +71,15 @@ const ReactTabulator = () => {
     };
   }, []);
 
-  return <>
-    <div>
-      <h1>Tabulator Table</h1>
-    </div>
+  return (
+    <>
+      <div>
+        <h1>Tabulator Table</h1>
+      </div>
 
-    <div ref={ref} data-instance={mainId} />
-  </>;
+      <div ref={ref} data-instance={mainId} />
+    </>
+  );
 };
 
 ReactTabulator.propTypes = {};
