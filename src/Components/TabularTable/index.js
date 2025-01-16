@@ -23,23 +23,23 @@ const ReactTabulator = () => {
           { title: "Email", field: "email" },
           { title: "Age", field: "age" },
         ],
-        pagination: true, //enable pagination
+        pagination: true, // Enable pagination
         paginationSize: 5,
-        paginationMode: "remote", //enable remote pagination
+        paginationMode: "remote", // Enable remote pagination
         ajaxURLGenerator: function (url, config, params) {
-          const { page = 1, size = 5 } = params;
-          const skip = (page - 1) * size;
-          return url + `?skip=${skip}&limit=${size}`;
+          const { page = 1, size = 5 } = params; // Use the correct size
+          const skip = (page - 1) * size; // Calculate the skip value
+          return `${url}?skip=${skip}&limit=${size}`; // Generate URL with skip and limit
         },
         ajaxResponse: function (url, params, response) {
-          // Must configure with server side
-          let last_page = Math.ceil(response.total / params.size);
+          const size = params.size || 5; // Use the selected page size
+          const last_page = Math.ceil(response.total / size); // Calculate total pages
           return {
             data: response.users,
             last_page,
           };
         },
-        paginationSizeSelector: [5, 10, 20, 50, 100],
+        paginationSizeSelector: [5, 10, 20, 50, 100], // Allow dynamic page size selection
         movableColumns: true,
         movableRows: true,
         layout: "fitColumns",
@@ -76,7 +76,6 @@ const ReactTabulator = () => {
       <div>
         <h1>Tabulator Table</h1>
       </div>
-
       <div ref={ref} data-instance={mainId} />
     </>
   );
