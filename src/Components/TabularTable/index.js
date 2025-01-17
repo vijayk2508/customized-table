@@ -1,72 +1,64 @@
-import React, { useRef, useState, useEffect } from "react";
-import { TabulatorFull as Tabulator } from "tabulator-tables";
-import "tabulator-tables/dist/css/tabulator.min.css";
-import ResizeObserver from "resize-observer-polyfill";
+import React, { useRef, useEffect, useState } from "react";
+import "../../Library/TabulatorLibrary/scss/tabulator.scss";
+import axios from "axios";
+import Tabulator  from "../../Library/TabulatorLibrary/js/core/Tabulator";
 
-const ReactTabulator = () => {
-  const ref = useRef();
-  const instanceRef = useRef();
-  const resizeObserverRef = useRef();
-  const [mainId] = useState(
-    `tabulator-${+new Date()}-${Math.floor(Math.random() * 9999999)}`
-  );
+const ReactTabulator = ({ limit: set_limit = 10, skip: set_skip = 0 }) => {
+  const [limit] = useState(set_limit);
+  const [skip, setSkip] = useState(set_skip);
+  const lastFetchedPage = useRef(null);
+  const tableRef = useRef(null);
+  const instanceRef = useRef(null);
+
+  const fetchData = async (page) => {
+    try {
+      const response = await axios.get("/api/users", {
+        params: {
+          limit: limit,
+          skip: skip,
+          page,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return { data: [], total: 0 };
+    }
+  };
 
   const initTabulator = async () => {
-    const domEle = ref.current;
+    if (!tableRef.current) {
+      console.error("Tabulator container is not ready.");
+      return;
+    }
 
     try {
-      instanceRef.current = new Tabulator(domEle, {
-        ajaxURL: "https://dummyjson.com/users",
-        columns: [
-          { title: "Id", field: "id" },
-          { title: "FirstName", field: "firstName" },
-          { title: "Gender", field: "gender" },
-          { title: "Email", field: "email" },
-          { title: "Age", field: "age" },
-        ],
-        pagination: true, // Enable pagination
-        paginationSize: 10, // Default pagination size
-        paginationSizeSelector: [5, 10, 20, 50, 100], // Allow dynamic page size selection
-        paginationMode: "remote", // Enable remote pagination
-        ajaxURLGenerator: function (url, config, params) {
-          const { page = 1, size = 10 } = params; // Use the correct size
-          const skip = (page - 1) * size; // Calculate the skip value
-          return `${url}?skip=${skip}&limit=${size}`; // Generate URL with skip and limit
-        },
-        ajaxResponse: function (url, params, response) {
-          const size = params.size || 10; // Use the selected page size
-          const last_page = Math.ceil(response.total / size); // Calculate total pages
-          return {
-            data: response.users,
-            last_page,
-          };
-        },
-        movableColumns: true,
-        movableRows: true,
+      const table = new Tabulator(tableRef.current, {
+        ajaxURL: "/",
         layout: "fitColumns",
+        pagination: "remote",
+        paginationSize: set_limit,
+        paginationSizeSelector: [5, 10, 20, 50, 100, 200],
+        columns: [
+          { title: "", field: "index", width: 50 },
+          { title: "ID", field: "id", width: 50 },
+          { title: "First Name", field: "firstName" },
+        ],
+        mockAPI: true,
       });
 
-      resizeObserverRef.current = new ResizeObserver(() => {
-        if (instanceRef.current && domEle) {
-          instanceRef.current.redraw(true); // Force redraw
-        }
-      });
-
-      if (domEle) {
-        resizeObserverRef.current.observe(domEle);
-      }
+      instanceRef.current = table;
     } catch (error) {
       console.error("Error initializing Tabulator:", error);
     }
   };
 
   useEffect(() => {
-    initTabulator();
+    if (tableRef.current) {
+      initTabulator();
+    }
 
     return () => {
-      if (resizeObserverRef.current) {
-        resizeObserverRef.current.disconnect();
-      }
       if (instanceRef.current) {
         instanceRef.current.destroy();
       }
@@ -74,15 +66,11 @@ const ReactTabulator = () => {
   }, []);
 
   return (
-    <>
-      <div>
-        <h1>Tabulator Table</h1>
-      </div>
-      <div ref={ref} data-instance={mainId} />
-    </>
+    <div>
+      <h1>Tabulator Example</h1>
+      <div ref={tableRef} style={{ marginTop: "20px", height: "400px" }} />
+    </div>
   );
 };
-
-ReactTabulator.propTypes = {};
 
 export default ReactTabulator;
