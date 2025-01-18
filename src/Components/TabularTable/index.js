@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
-import "../../Library/TabulatorLibrary/scss/tabulator.scss";
 import axios from "axios";
-import Tabulator  from "../../Library/TabulatorLibrary/js/core/Tabulator";
+import { TabulatorFull as Tabulator } from "tabulator-tables";
+import "tabulator-tables/dist/css/tabulator.min.css";
 
 const ReactTabulator = ({ limit: set_limit = 10, skip: set_skip = 0 }) => {
   const [limit] = useState(set_limit);

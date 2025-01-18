@@ -1,9 +1,9 @@
 import React from 'react'
-import TabularTable from './Components/TabularTable'
+import PaginationWithAjax from './Components/TabularTable/PaginationWithAjax'
 
 function App() {
   return (
-    <TabularTable />
+    <PaginationWithAjax />
   )
 }
 

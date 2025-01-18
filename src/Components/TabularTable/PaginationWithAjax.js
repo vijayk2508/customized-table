@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
+
+
 import ResizeObserver from "resize-observer-polyfill";
 
 const ReactTabulator = () => {
@@ -15,6 +17,7 @@ const ReactTabulator = () => {
     const domEle = ref.current;
 
     try {
+      debugger;
       instanceRef.current = new Tabulator(domEle, {
         ajaxURL: "https://dummyjson.com/users",
         columns: [
