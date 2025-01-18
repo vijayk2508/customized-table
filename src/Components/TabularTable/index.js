@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState, use } from "react";
+import PropTypes from "prop-types";
+import React, { useRef, useEffect, useState } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
 import axios from "axios";
@@ -6,7 +7,8 @@ import axios from "axios";
 const ReactTabulator = ({ limit: set_limit = 10, skip: set_skip = 0 }) => {
   const [currPage, setCurrPage] = useState(1);
   const [limit] = useState(set_limit);
-  const [skip, setSkip] = useState(set_skip);
+  const [skip] = useState(set_skip);
+  const [tableStatus, setTableStatus] = useState("");
 
   const tableRef = useRef(null);
   const instanceRef = useRef(null);
@@ -43,6 +45,7 @@ const ReactTabulator = ({ limit: set_limit = 10, skip: set_skip = 0 }) => {
         paginationSize: set_limit,
         paginationSizeSelector: [5, 10, 20, 50, 100, 200],
         columns: [
+          { title: "#", field: "index", width: 20, headerSort: true },
           { title: "ID", field: "id", width: 50 },
           { title: "First Name", field: "firstName" },
         ],
@@ -51,7 +54,7 @@ const ReactTabulator = ({ limit: set_limit = 10, skip: set_skip = 0 }) => {
       });
 
       table.on("tableBuilt", async (...args) => {
-        console.log(args);
+        setTableStatus("tableBuilt");
 
         const response = await fetchData();
         const last_page = Math.ceil(response.total / limit);
@@ -59,11 +62,13 @@ const ReactTabulator = ({ limit: set_limit = 10, skip: set_skip = 0 }) => {
         table.setPageSize(limit);
         table.setMaxPage(last_page);
         table.setPage(1);
-        table.setData(response.data);
+        table.replaceData(response.data);
       });
 
-      table.on("renderStarted", async () => {
+      table.on("renderComplete", async () => {
         const page = table.getPage();
+
+        setTableStatus("renderStarted");
         setCurrPage(page);
       });
 
@@ -74,7 +79,8 @@ const ReactTabulator = ({ limit: set_limit = 10, skip: set_skip = 0 }) => {
   };
 
   async function loadTableData(currPage) {
-    if (!instanceRef.current) return;
+    debugger;
+    if (!instanceRef.current || tableStatus !== "renderStarted") return;
 
     const response = await fetchData(currPage);
     const last_page = Math.ceil(response.total / limit);
@@ -82,7 +88,7 @@ const ReactTabulator = ({ limit: set_limit = 10, skip: set_skip = 0 }) => {
     instanceRef.current.setPageSize(limit);
     instanceRef.current.setMaxPage(last_page);
     instanceRef.current.setPage(currPage);
-    instanceRef.current.setData(response.data);
+    instanceRef.current.replaceData(response.data);
   }
 
   useEffect(() => {
@@ -111,6 +117,11 @@ const ReactTabulator = ({ limit: set_limit = 10, skip: set_skip = 0 }) => {
       <div ref={tableRef} style={{ marginTop: "20px", height: "400px" }} />
     </div>
   );
+};
+
+ReactTabulator.propTypes = {
+  limit: PropTypes.number,
+  skip: PropTypes.number,
 };
 
 export default ReactTabulator;
