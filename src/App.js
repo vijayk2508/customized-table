@@ -1,5 +1,5 @@
 import React from 'react'
-import FullTabulatorTable from './Components/TabularTable/FullTabulatorTable'
+import FullTabulatorTable from './Components/TabulatorTable/FullTabulatorTable'
 
 
 function App() {
