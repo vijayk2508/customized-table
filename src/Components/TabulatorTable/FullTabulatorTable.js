@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
 
-
 const FullTabulatorTable = () => {
   const ref = useRef();
   const instanceRef = useRef();
@@ -23,7 +22,13 @@ const FullTabulatorTable = () => {
           },
         },
         columns: [
-          { title: "", field: "index" },
+          {
+            title: "Index",
+            formatter: "rownum",
+            hozAlign: "center",
+            width: 50,
+          },
+          { title: "Order", field: "index" },
           { title: "Id", field: "_id" },
           { title: "FirstName", field: "firstName" },
           { title: "Gender", field: "gender" },
