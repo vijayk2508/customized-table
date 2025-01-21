@@ -23,7 +23,7 @@ const FullTabulatorTable = () => {
         },
         columns: [
           {
-            title: "Index",
+            title: "",
             formatter: "rownum",
             hozAlign: "center",
             width: 50,
