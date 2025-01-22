@@ -1,33 +1,21 @@
 import React from "react";
 import useTabulatorTable from "../../hooks/useTabulatorTable";
-
-const data = {
-  tableName: "Table 1",
-  columns: [
-    {
-      title: "Name",
-      field: "name",
-    },
-    {
-      title: "Age",
-      field: "age",
-    },
-  ],
-  rows: [
-    {
-      name: "John Doe",
-      age: 30,
-    },
-    {
-      name: "Jane Doe",
-      age: 25,
-    },
-  ],
-};
+import useMockGetTableData from "../../hooks/useMockGetTableData";
 
 function StaticTabulatorTable() {
-  const { tableContainerRef, handleAddColumn, mainId } =
-    useTabulatorTable(data);
+  const { data, loading, error } = useMockGetTableData();
+
+  const { tableContainerRef, handleAddColumn, mainId } = useTabulatorTable(
+    data
+  );
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   if (!data) {
     return <div>No data found</div>;

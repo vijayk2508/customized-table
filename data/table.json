@@ -1,0 +1,53 @@
+{
+  "tables": [
+    {
+      "id": "1",
+      "name": "Table 1"
+    }
+  ],
+  "columns": [
+    {
+      "title": "Name1321321",
+      "field": "name",
+      "minWidth": 40,
+      "headerWordWrap": false,
+      "editableTitle": true,
+      "resizable": true,
+      "headerSort": true,
+      "id": "1",
+      "tableId": 1
+    },
+    {
+      "id": "2",
+      "title": "Age",
+      "field": "age",
+      "tableId": 1
+    }
+  ],
+  "rows": [
+    {
+      "id": "1",
+      "field": {
+        "1": {
+          "value": "John Doe"
+        },
+        "2": {
+          "value": 20
+        }
+      },
+      "tableId": 1
+    },
+    {
+      "id": "2",
+      "field": {
+        "1": {
+          "value": "Jack Done"
+        },
+        "2": {
+          "value": 25
+        }
+      },
+      "tableId": 1
+    }
+  ]
+}

@@ -1,22 +1,35 @@
 import { useEffect, useRef, useState } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
+import { axiosInstance } from "../services";
 
-async function headerClick(e, column, instanceRef) {
-  const currCol = column?.getDefinition?.();
-  if (currCol) {
-    await instanceRef.current.updateColumnDefinition(currCol.field, {
-      editableTitle: true,
-    });
+async function updateCol(_e, column, instanceRef, editableTitle = true) {
+  try {
+    const currCol = column?.getDefinition?.();
+    console.log(currCol);
+
+    if (currCol) {
+      await instanceRef.current.updateColumnDefinition(currCol.field, {
+        editableTitle,
+      });
+
+
+      if (currCol.id && !editableTitle) {
+        await axiosInstance.put(`/columns/${currCol.id}`, currCol);
+      }
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
 
 function getColumnsFromData(columns, instanceRef) {
   const initialColumns = columns.map((column) => ({
-    title: column.title,
-    field: column.field,
+    ...column,
+    // title: column.title,
+    // field: column.field,
     editableTitle: false,
-    headerClick: (e, column) => headerClick(e, column, instanceRef),
+    headerClick: (e, column) => updateCol(e, column, instanceRef),
   }));
 
   return initialColumns;
@@ -24,18 +37,25 @@ function getColumnsFromData(columns, instanceRef) {
 
 const useTabulatorTable = (data) => {
   const tableContainerRef = useRef();
-  const [columns, setColumns] = useState(data.columns);
-  const [rows, setRows] = useState(data.rows);
+  const [columns, setColumns] = useState([]);
+  const [rows, setRows] = useState([]);
   const instanceRef = useRef();
 
   useEffect(() => {
-    debugger;
+    if (data) {
+      setColumns(data.columns);
+      setRows(data.rows);
+    }
+  }, [data]);
+
+  useEffect(() => {
     if (!instanceRef.current && tableContainerRef.current) {
       const domEle = tableContainerRef.current;
 
       // Initialize Tabulator
       const table = new Tabulator(domEle, {
         data: [],
+        columns: [],
         layout: "fitColumns",
         editable: true,
         movableColumns: true,
@@ -43,7 +63,6 @@ const useTabulatorTable = (data) => {
         paginationSize: 10,
         placeholderEmpty: "Empty",
         headerSort: false,
-        columns: [],
         columnHeaderSort: false,
       });
 
@@ -51,6 +70,11 @@ const useTabulatorTable = (data) => {
         instanceRef.current = table;
         table?.setColumns(getColumnsFromData(columns, instanceRef));
         table?.setData(rows);
+      });
+
+      table.on("columnTitleChanged", (col) => {
+        console.log("columnTitleChanged", col);
+        updateCol(null, col, instanceRef, false);
       });
     }
   }, [columns, rows]);
