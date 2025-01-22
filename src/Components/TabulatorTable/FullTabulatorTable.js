@@ -82,7 +82,6 @@ const FullTabulatorTable = () => {
           const URL = `${API.USER.UPDATE_USER_BY_ID}${updatedData._id}`;
           await axiosInstance.put(URL, updatedData);
         } catch (error) {
-          debugger;
           console.error("Error updating data:", error);
         }
       });
