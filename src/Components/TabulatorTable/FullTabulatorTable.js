@@ -11,6 +11,7 @@ const API = {
     GET_USER_BY_ID: `/users/`,
     UPDATE_USER_BY_ID: `/users/`,
     ADD_USER: `/users/`,
+    DELETE_USER_BY_ID: `/users/`, // Add DELETE endpoint
   },
 };
 
@@ -48,19 +49,35 @@ const FullTabulatorTable = () => {
           { title: "Gender", field: "gender", editor: "input" },
           { title: "Email", field: "email", editor: "input" },
           { title: "Age", field: "age", editor: "input" },
+          {
+            title: "Actions",
+            formatter: "buttonCross",
+            width: 100,
+            align: "center",
+            cellClick: async (e, cell) => {
+              const rowData = cell.getRow().getData();
+              try {
+                const URL = `${API.USER.DELETE_USER_BY_ID}${rowData._id}`;
+                await axiosInstance.delete(URL);
+                cell.getRow().delete();
+              } catch (error) {
+                console.error("Error deleting data:", error);
+              }
+            },
+          },
         ],
-        pagination: true, // Enable pagination
-        paginationSize: 10, // Default pagination size
-        paginationSizeSelector: [5, 10, 20, 50, 100], // Allow dynamic page size selection
-        paginationMode: "remote", // Enable remote pagination
+        pagination: true,
+        paginationSize: 10,
+        paginationSizeSelector: [5, 10, 20, 50, 100],
+        paginationMode: "remote",
         ajaxURLGenerator: function (url, config, params) {
-          const { page = 1, size = 10 } = params; // Use the correct size
-          const skip = (page - 1) * size; // Calculate the skip value
-          return `${url}?skip=${skip}&limit=${size}`; // Generate URL with skip and limit
+          const { page = 1, size = 10 } = params;
+          const skip = (page - 1) * size;
+          return `${url}?skip=${skip}&limit=${size}`;
         },
         ajaxResponse: function (url, params, response) {
-          const size = params.size || 10; // Use the selected page size
-          const last_page = Math.ceil(response.total / size); // Calculate total pages
+          const size = params.size || 10;
+          const last_page = Math.ceil(response.total / size);
           return {
             data: response.data,
             last_page,
@@ -71,13 +88,8 @@ const FullTabulatorTable = () => {
         layout: "fitDataStretch",
       });
 
-      // Add cellEdited event listener
-      table.on("cellEdited", async function (cell, ...args) {
-        console.log(args);
-
+      table.on("cellEdited", async function (cell) {
         const updatedData = cell.getRow().getData();
-        console.log("Cell Edited:", updatedData);
-
         try {
           const URL = `${API.USER.UPDATE_USER_BY_ID}${updatedData._id}`;
           await axiosInstance.put(URL, updatedData);
@@ -89,6 +101,22 @@ const FullTabulatorTable = () => {
       instanceRef.current = table;
     } catch (error) {
       console.error("Error initializing Tabulator:", error);
+    }
+  };
+
+  const handleAddRow = async () => {
+    const newUser = {
+      index: "",
+      firstName: "",
+      gender: "",
+      email: "",
+      age: "",
+    };
+    try {
+      const response = await axiosInstance.post(API.USER.ADD_USER, newUser);
+      instanceRef.current.addData([response.data], true);
+    } catch (error) {
+      console.error("Error adding new user:", error);
     }
   };
 
@@ -106,12 +134,11 @@ const FullTabulatorTable = () => {
     <>
       <div>
         <h1>Tabulator Table</h1>
+        <button onClick={handleAddRow}>Add Row</button>
       </div>
       <div ref={ref} data-instance={mainId} />
     </>
   );
 };
-
-FullTabulatorTable.propTypes = {};
 
 export default FullTabulatorTable;
