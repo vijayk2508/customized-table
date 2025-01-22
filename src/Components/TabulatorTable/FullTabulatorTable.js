@@ -1,6 +1,25 @@
 import React, { useRef, useState, useEffect } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
+import axios from "axios";
+
+const baseURL = "https://customized-table-backend.vercel.app/api";
+
+const API = {
+  USER: {
+    GET_ALL_USERS: `/users`,
+    GET_USER_BY_ID: `/users/`,
+    UPDATE_USER_BY_ID: `/users/`,
+    ADD_USER: `/users/`,
+  },
+};
+
+const headers = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+};
+
+const axiosInstance = axios.create({ baseURL, headers });
 
 const FullTabulatorTable = () => {
   const ref = useRef();
@@ -13,27 +32,22 @@ const FullTabulatorTable = () => {
     const domEle = ref.current;
 
     try {
-      instanceRef.current = new Tabulator(domEle, {
-        ajaxURL: "https://customized-table-backend.vercel.app/api/users",
-        ajaxConfig: {
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        },
+      const table = new Tabulator(domEle, {
+        ajaxURL: `${baseURL}${API.USER.GET_ALL_USERS}`,
+        ajaxConfig: { headers },
         columns: [
           {
-            title: "",
+            title: "Index",
             formatter: "rownum",
             hozAlign: "center",
-            width: 50,
+            width: 100,
           },
-          { title: "Order", field: "index" },
+          { title: "Index Order", field: "index", editor: "input" },
           { title: "Id", field: "_id" },
-          { title: "FirstName", field: "firstName" },
-          { title: "Gender", field: "gender" },
-          { title: "Email", field: "email" },
-          { title: "Age", field: "age" },
+          { title: "FirstName", field: "firstName", editor: "input" },
+          { title: "Gender", field: "gender", editor: "input" },
+          { title: "Email", field: "email", editor: "input" },
+          { title: "Age", field: "age", editor: "input" },
         ],
         pagination: true, // Enable pagination
         paginationSize: 10, // Default pagination size
@@ -56,6 +70,24 @@ const FullTabulatorTable = () => {
         movableRows: true,
         layout: "fitDataStretch",
       });
+
+      // Add cellEdited event listener
+      table.on("cellEdited", async function (cell, ...args) {
+        console.log(args);
+
+        const updatedData = cell.getRow().getData();
+        console.log("Cell Edited:", updatedData);
+
+        try {
+          const URL = `${API.USER.UPDATE_USER_BY_ID}${updatedData._id}`;
+          await axiosInstance.put(URL, updatedData);
+        } catch (error) {
+          debugger;
+          console.error("Error updating data:", error);
+        }
+      });
+
+      instanceRef.current = table;
     } catch (error) {
       console.error("Error initializing Tabulator:", error);
     }

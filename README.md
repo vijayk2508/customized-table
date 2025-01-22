@@ -28,3 +28,6 @@ To install the project dependencies, run:
 
 ```sh
 npm install
+
+
+https://stackoverflow.com/questions/68733789/tabulator-update-one-cell-using-data-from-another-in-the-row
