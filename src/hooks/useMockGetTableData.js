@@ -1,6 +1,4 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
-import { axiosInstance } from "../services";
 import { getTableData } from "../services/tableService";
 
 /**
