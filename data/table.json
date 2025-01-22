@@ -7,7 +7,7 @@
   ],
   "columns": [
     {
-      "title": "Name1321321",
+      "title": "Name",
       "field": "name",
       "minWidth": 40,
       "headerWordWrap": false,
