@@ -1,39 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
-import { axiosInstance } from "../services";
-
-async function updateCol(_e, column, instanceRef, editableTitle = true) {
-  try {
-    const currCol = column?.getDefinition?.();
-    console.log(currCol);
-
-    if (currCol) {
-      await instanceRef.current.updateColumnDefinition(currCol.field, {
-        editableTitle,
-      });
-
-
-      if (currCol.id && !editableTitle) {
-        await axiosInstance.put(`/columns/${currCol.id}`, currCol);
-      }
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-function getColumnsFromData(columns, instanceRef) {
-  const initialColumns = columns.map((column) => ({
-    ...column,
-    // title: column.title,
-    // field: column.field,
-    editableTitle: false,
-    headerClick: (e, column) => updateCol(e, column, instanceRef),
-  }));
-
-  return initialColumns;
-}
+import {
+  //cellClick,
+  cellEdited,
+  getColumnsFromData,
+  updateCol,
+} from "../Library/TabulatorLib/TabulatorHelper";
+//import { saveNewColumn } from "../services/tableService";
 
 const useTabulatorTable = (data) => {
   const tableContainerRef = useRef();
@@ -57,7 +31,6 @@ const useTabulatorTable = (data) => {
         data: [],
         columns: [],
         layout: "fitColumns",
-        editable: true,
         movableColumns: true,
         pagination: "local",
         paginationSize: 10,
@@ -72,9 +45,16 @@ const useTabulatorTable = (data) => {
         table?.setData(rows);
       });
 
-      table.on("columnTitleChanged", (col) => {
-        console.log("columnTitleChanged", col);
-        updateCol(null, col, instanceRef, false);
+      table.on("columnTitleChanged", (col) =>
+        updateCol(null, col, instanceRef, false)
+      );
+
+      // table.on("cellClick", (e, cell) => {
+      //   cellClick(cell, instanceRef);
+      // });
+
+      table.on("cellEdited", (cell) => {
+        cellEdited(cell);
       });
     }
   }, [columns, rows]);
@@ -82,17 +62,55 @@ const useTabulatorTable = (data) => {
   // Function to handle adding a new column
   const handleAddColumn = () => {
     const newColumnSlug = `new_column_${columns.length + 1}`;
+
     const newColumn = {
       title: `New Column ${columns.length + 1}`,
       field: newColumnSlug,
       editableTitle: false,
     };
+    instanceRef.current.addColumn(newColumn, true, newColumn.field);
 
     setColumns((prevColumns) => [...prevColumns, newColumn]);
 
-    setRows((prevRows) => {
-      return prevRows.map((row) => ({ ...row, [newColumnSlug]: "" }));
-    });
+    // setRows((prevRows) => {
+    //   const getAllRows = prevRows.map((row) => ({
+    //     ...row,
+    //     [newColumnSlug]: "New",
+    //   }));
+
+    //   const columnLayout = instanceRef.current.getColumnLayout();
+
+    //   const columnMapping = columnLayout.reduce((acc, curr) => {
+    //     acc[curr.field] = curr.id; // Map field names to their corresponding column IDs
+    //     return acc;
+    //   }, {});
+
+    //   const updatedRows = [];
+    //   getAllRows.forEach((rowData) => {
+    //     const formattedRowData = {
+    //       id: rowData.id,
+    //       field: {}, // Initialize an empty field object
+    //       tableId: rowData.tableId,
+    //     };
+
+    //     for (const key in rowData) {
+    //       if (key !== "id" && key !== "tableId" && columnMapping[key]) {
+    //         formattedRowData.field[columnMapping[key]] = {
+    //           value: rowData[key],
+    //         };
+    //       }
+    //     }
+
+    //     updatedRows.push(formattedRowData);
+    //   });
+
+    //   // Populate the `field` object using column IDs
+
+    //   // Save the new column to the backend
+    //   //saveNewColumn(newColumn, updatedRows); // Update this line
+
+    //   return updatedRows;
+    // });
   };
 
   return {

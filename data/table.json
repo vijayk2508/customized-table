@@ -9,19 +9,18 @@
     {
       "title": "Name",
       "field": "name",
-      "minWidth": 40,
-      "headerWordWrap": false,
-      "editableTitle": true,
-      "resizable": true,
-      "headerSort": true,
       "id": "1",
-      "tableId": 1
+      "tableId": 1,
+      "editor": "input",
+      "editable": true
     },
     {
       "id": "2",
       "title": "Age",
       "field": "age",
-      "tableId": 1
+      "tableId": 1,
+      "editor": "input",
+      "editable": true
     }
   ],
   "rows": [
@@ -29,10 +28,10 @@
       "id": "1",
       "field": {
         "1": {
-          "value": "John Doe"
+          "value": "John Doe 13233sssssssdsdsdsdsdsds"
         },
         "2": {
-          "value": 20
+          "value": "30"
         }
       },
       "tableId": 1
@@ -41,7 +40,7 @@
       "id": "2",
       "field": {
         "1": {
-          "value": "Jack Done"
+          "value": "Jack Done 12133 555"
         },
         "2": {
           "value": 25

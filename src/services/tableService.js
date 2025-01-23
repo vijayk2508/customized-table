@@ -44,3 +44,17 @@ export const getTableData = async function (id = 1) {
   });
   return response;
 };
+
+export const saveNewColumn = async (newColumn, rows) => {
+  try {
+    // Save the new column to the columns endpoint
+    await axiosInstance.post('/columns', newColumn);
+
+    // Optionally, you can also update the rows if needed
+    await Promise.all(rows.map(row => {
+      return axiosInstance.patch(`/rows`,rows);
+    }));
+  } catch (error) {
+    console.error('Error saving new column:', error);
+  }
+};
