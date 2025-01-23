@@ -7,6 +7,16 @@ export const setColHeaderMenu = (instanceRef) => {
       ? {
           ...colDef,
           headerMenu: zerothCol(instanceRef).headerMenu,
+          contextMenu: [
+            {
+              label: "Delete Selected Rows",
+              action: function (_e, _column) {
+                const selectedRows = instanceRef.current.getSelectedRows();
+                const rowIds = selectedRows.map((row) => row.getData().id);
+                instanceRef.current.deleteRow(rowIds);
+              },
+            },
+          ],
         }
       : {
           ...colDef,
@@ -30,6 +40,12 @@ export const zerothCol = (instanceRef) => {
     resizable: false,
     width: 10,
     hozAlign: "center",
+
+    cellClick: (e, cell) => {
+      const row = cell.getRow();
+      row.toggleSelect();
+    },
+
     headerMenu: [
       {
         label: "Show Column",
@@ -49,7 +65,7 @@ const getHideColumnSubMenu = (instanceRef) => {
   const columns = table.getColumns();
 
   for (let column of columns) {
-    if(column.getDefinition().id===0) continue
+    if (column.getDefinition().id === 0) continue;
     //create checkbox element
     let checkbox = document.createElement("input");
     checkbox.type = "checkbox";
