@@ -1,26 +1,61 @@
 import { axiosInstance } from "../../services";
+import { saveNewColumn } from "../../services/tableService";
 
-export const setColHeaderMenu = (instanceRef) => {
+const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
+  try {
+    const columns = instanceRef.current.getColumns();
+    const colIndex = columns.findIndex(
+      (col) => col.getField() === column.getField()
+    );
+
+    const newColumnSlug = `new_column_${columns.length + 1}`;
+
+    const newColumn = {
+      id: columns.length + 1,
+      title: `New Column ${columns.length + 1}`,
+      field: newColumnSlug,
+      editor: "input",
+      editable: false,
+    };
+
+    // Add new column to the table
+    instanceRef.current.addColumn(
+      setFormattedCol(newColumn, editingColumn, instanceRef),
+      left,
+      (!left
+        ? columns[colIndex + 1]?.getField()
+        : columns[colIndex]?.getField()) || null
+    );
+
+    // Update rows to include the new column
+    const updatedRows = instanceRef.current.getRows().map((row) => {
+      const rowData = row.getData();
+      return {
+        ...rowData,
+        [newColumnSlug]: rowData[newColumnSlug] || "", // Add new column with default value
+      };
+    });
+
+    instanceRef.current.setData(updatedRows);
+
+    saveNewColumn(newColumn);
+  } catch (error) {
+    console.error("Error adding new column:", error);
+  }
+};
+
+export const setColHeaderMenu = (instanceRef, editingColumn) => {
   const updatedColumns = instanceRef.current.getColumns().map((col) => {
     const colDef = col.getDefinition();
     return colDef.id === 0
       ? {
           ...colDef,
-          headerMenu: zerothCol(instanceRef).headerMenu,
-          contextMenu: [
-            {
-              label: "Delete Selected Rows",
-              action: function (_e, _column) {
-                const selectedRows = instanceRef.current.getSelectedRows();
-                const rowIds = selectedRows.map((row) => row.getData().id);
-                instanceRef.current.deleteRow(rowIds);
-              },
-            },
-          ],
+          headerMenu: zerothCol(instanceRef, editingColumn).headerMenu,
+          contextMenu: () => zerothColContextMenu(instanceRef, editingColumn),
         }
       : {
           ...colDef,
-          headerMenu: headerMenu(instanceRef),
+          headerMenu: headerMenu(instanceRef, editingColumn),
         };
   });
 
@@ -55,6 +90,52 @@ export const zerothCol = (instanceRef) => {
   };
 
   return colData;
+};
+
+export const zerothColContextMenu = function (instanceRef) {
+  const selectedRows = instanceRef.current.getSelectedRows();
+  const menu = [];
+
+  menu.push(
+    {
+      label: "Add Row Above",
+      action: function (_e, cell) {
+        const table = instanceRef.current;
+        const newRow = {}; // Define the structure of the new row
+        const row = cell.getRow();
+        table.addRow(newRow, row, "before"); // Add the new row above the selected row
+      },
+    },
+    {
+      label: "Add Row Below",
+      action: function (_e, cell) {
+        const table = instanceRef.current;
+        const newRow = {}; // Define the structure of the new row
+        const row = cell.getRow();
+        table.addRow(newRow, row, "after"); // Add the new row below the selected row
+      },
+    }
+  );
+
+  menu.push(
+    selectedRows.length > 1
+      ? {
+          label: "Delete Selected Rows",
+          action: function (_e, _column) {
+            const rowIds = selectedRows.map((row) => row.getData().id);
+            instanceRef.current.deleteRow(rowIds);
+          },
+        }
+      : {
+          label: "Delete Row",
+          action: function (_e, cell) {
+            const row = cell.getRow();
+            row.delete();
+          },
+        }
+  );
+
+  return menu;
 };
 
 // Function to get the submenu for hiding specific columns
@@ -107,7 +188,21 @@ const getHideColumnSubMenu = (instanceRef) => {
 };
 
 //define row context menu
-export const headerMenu = (instanceRef) => [
+export const headerMenu = (instanceRef, editingColumn) => [
+  {
+    label: "Add Column Right Side",
+    action: (e, col) => handleAddColumn(col, editingColumn, instanceRef),
+  },
+  {
+    label: "Add Column Left Side",
+    action: (e, col) => handleAddColumn(col, editingColumn, instanceRef, true),
+  },
+  {
+    label: "Delete Column",
+    action: function (e, column) {
+      column.delete();
+    },
+  },
   {
     label: "Sort By Asc",
 
