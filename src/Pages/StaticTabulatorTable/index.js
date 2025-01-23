@@ -5,9 +5,8 @@ import useMockGetTableData from "../../hooks/useMockGetTableData";
 function StaticTabulatorTable() {
   const { data, loading, error } = useMockGetTableData();
 
-  const { tableContainerRef, handleAddColumn, mainId } = useTabulatorTable(
-    data
-  );
+  const { tableContainerRef, handleAddColumn, handleRemoveRows, selectedRows } =
+    useTabulatorTable(data);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -22,10 +21,16 @@ function StaticTabulatorTable() {
   }
 
   return (
-    <div>
+    <div style={{margin : 30}}>
       <h1>{data.tableName}</h1>
       <button onClick={handleAddColumn}>Add Column</button>
-      <div ref={tableContainerRef} data-instance={mainId} />
+      <button
+        onClick={handleRemoveRows}
+        disabled={selectedRows.length === 0} // Disable if no rows are selected
+      >
+        Remove Selected Rows
+      </button>
+      <div ref={tableContainerRef} />
     </div>
   );
 }

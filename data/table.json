@@ -75,14 +75,14 @@
       "title": "New Column 9",
       "field": "new_column_9",
       "editor": "input",
-      "editable": true
+      "editable": false
     },
     {
       "id": 10,
       "title": "New Column 10",
       "field": "new_column_10",
       "editor": "input",
-      "editable": true
+      "editable": false
     }
   ],
   "rows": [
@@ -112,12 +112,6 @@
         },
         "8": {
           "value": "male"
-        },
-        "9": {
-          "value": "test"
-        },
-        "10": {
-          "value": "y"
         }
       },
       "tableId": 1
@@ -228,7 +222,7 @@
           "value": "(259) 770-7706"
         },
         "5": {
-          "value": "705 Vivien Stravenue"
+          "value": "705 Vivien Stravenue777"
         },
         "6": {
           "value": "Tremaineberg"
@@ -238,6 +232,12 @@
         },
         "8": {
           "value": "male"
+        },
+        "9": {
+          "value": ""
+        },
+        "10": {
+          "value": ""
         }
       },
       "tableId": 1
@@ -246,7 +246,7 @@
       "id": "6",
       "field": {
         "1": {
-          "value": "Cheryl Streich"
+          "value": ""
         },
         "2": {
           "value": "72"
@@ -258,7 +258,7 @@
           "value": "776-647-5033 x62040"
         },
         "5": {
-          "value": "678 St Andrew's Road"
+          "value": "777777 Road"
         },
         "6": {
           "value": "East Madisen"
@@ -268,6 +268,12 @@
         },
         "8": {
           "value": "male"
+        },
+        "9": {
+          "value": ""
+        },
+        "10": {
+          "value": ""
         }
       },
       "tableId": 1
@@ -276,7 +282,7 @@
       "id": "7",
       "field": {
         "1": {
-          "value": "Isaac O'Keefe II"
+          "value": ""
         },
         "2": {
           "value": "69"
@@ -298,6 +304,12 @@
         },
         "8": {
           "value": "female"
+        },
+        "9": {
+          "value": ""
+        },
+        "10": {
+          "value": ""
         }
       },
       "tableId": 1
@@ -306,7 +318,7 @@
       "id": "8",
       "field": {
         "1": {
-          "value": "Shelia Parisian"
+          "value": ""
         },
         "2": {
           "value": "66"
@@ -328,6 +340,12 @@
         },
         "8": {
           "value": "male"
+        },
+        "9": {
+          "value": ""
+        },
+        "10": {
+          "value": ""
         }
       },
       "tableId": 1
@@ -336,7 +354,7 @@
       "id": "9",
       "field": {
         "1": {
-          "value": "Suzanne Heaney"
+          "value": ""
         },
         "2": {
           "value": "65"
@@ -358,6 +376,12 @@
         },
         "8": {
           "value": "female"
+        },
+        "9": {
+          "value": ""
+        },
+        "10": {
+          "value": ""
         }
       },
       "tableId": 1

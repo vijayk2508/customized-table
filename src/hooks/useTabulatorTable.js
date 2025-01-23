@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
 import {
-  //cellClick,
+  cellContextMenu,
   cellEdited,
-  getColumnsFromData,
+  setColHeaderMenu,
+  setFormattedCol,
+  setHeaderNonEditable,
   updateCol,
+  zerothCol,
 } from "../Library/TabulatorLib/TabulatorHelper";
 import { saveNewColumn } from "../services/tableService";
 
@@ -13,6 +16,8 @@ const useTabulatorTable = (data) => {
   const tableContainerRef = useRef();
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]); // State to store selected rows
+  const editingColumn = useRef(null);
   const instanceRef = useRef();
 
   useEffect(() => {
@@ -26,7 +31,6 @@ const useTabulatorTable = (data) => {
     if (!instanceRef.current && tableContainerRef.current) {
       const domEle = tableContainerRef.current;
 
-      // Initialize Tabulator
       const table = new Tabulator(domEle, {
         data: [],
         columns: [],
@@ -35,31 +39,85 @@ const useTabulatorTable = (data) => {
         pagination: "local",
         paginationSize: 10,
         placeholderEmpty: "Empty",
-        headerSort: false,
-        columnHeaderSort: false,
+        rowContextMenu1: [
+          {
+            label: "Delete Row",
+            action: function (e, row) {
+              row.delete();
+            },
+          },
+          {
+            separator: true,
+          },
+          {
+            disabled: true,
+            label: "Add 1 row above",
+            action: function () {
+              console.log("Add 1 row above", arguments);
+            },
+          },
+          {
+            separator: true,
+          },
+          {
+            disabled: true,
+            label: "Add 1 row below",
+            action: function () {
+              console.log("Add 1 row below", arguments);
+            },
+          },
+        ],
+        autoColumns: false,
       });
 
       table.on("tableBuilt", () => {
         instanceRef.current = table;
-        table?.setColumns(getColumnsFromData(columns, instanceRef));
-        console.log(rows);
-        
+
+        const initialColumns = columns.map((column) =>
+          setFormattedCol(column, editingColumn, instanceRef)
+        );
+
+        initialColumns.unshift(zerothCol(instanceRef));
+
+        table?.setColumns(initialColumns);
         table?.setData(rows);
+
+        setColHeaderMenu(instanceRef);
+      });
+
+      table.on("rowSelectionChanged", function () {
+        console.log(arguments);
       });
 
       table.on("columnTitleChanged", (col) =>
         updateCol(null, col, instanceRef, false)
       );
 
-      // table.on("cellClick", (e, cell) => {
-      //   cellClick(cell, instanceRef);
-      // });
-
       table.on("cellEdited", (cell) => {
         cellEdited(cell);
       });
+
+      table.on("cellDblClick", (e, cell) => {
+        cell.edit(true);
+      });
+
+      table.on("cellEditCancelled", (cell) => {
+        cell.getElement().blur();
+      });
+
+      table.on("cellEdited", (cell) => {
+        cell.getElement().blur();
+      });
+
+      table.on("rowClick", async (cell) => {
+        await setHeaderNonEditable(editingColumn, instanceRef);
+      });
+
+      table.on("headerClick", async (cell) => {
+        await setHeaderNonEditable(editingColumn, instanceRef);
+      });
     }
-  }, [columns, rows]);
+  }, [columns, editingColumn, rows]);
 
   // Function to handle adding a new column
   const handleAddColumn = () => {
@@ -71,19 +129,15 @@ const useTabulatorTable = (data) => {
         title: `New Column ${columns.length + 1}`,
         field: newColumnSlug,
         editor: "input",
-        editable: true,
+        editable: false,
       };
 
       // Add new column to the table
       instanceRef.current.addColumn(
-        {
-          ...newColumn,
-          headerClick: (e, column) => updateCol(e, column, instanceRef),
-        },
+        setFormattedCol(newColumn, editingColumn, instanceRef),
         false,
         newColumn.field
       );
-
       // Update rows to include the new column
       const updatedRows = instanceRef.current.getRows().map((row) => {
         const rowData = row.getData();
@@ -93,54 +147,41 @@ const useTabulatorTable = (data) => {
         };
       });
 
-      // Update state
-      setColumns((prevColumns) => [...prevColumns, newColumn]);
-      setRows(updatedRows);
       instanceRef.current.setData(updatedRows);
 
-      //const columnLayout = instanceRef.current.getColumnLayout();
-      // const columnMapping = columnLayout.reduce((acc, curr) => {
-      //   acc[curr.field] = curr.id;
-      //   return acc;
-      // }, {});
-
-      // // Populate the field object using column IDs
-      // const rows = instanceRef.current.getRows();
-
-      // let formattedRows = [];
-
-      // rows.forEach((row) => {
-      //   const rowData = row.getData();
-
-      //   const formattedRowData = {
-      //     id: rowData.id,
-      //     field: {},
-      //     tableId: rowData.tableId,
-      //   };
-
-      //   for (const key in rowData) {
-      //     if (key !== "id" && key !== "tableId" && columnMapping[key]) {
-      //       formattedRowData.field[columnMapping[key]] = {
-      //         value: rowData?.[key] || "",
-      //       };
-      //     }
-      //   }
-
-      //   formattedRows.push(formattedRowData);
-      // });
-
+      setColumns((prevColumns) => [...prevColumns, newColumn]);
+      setRows(updatedRows);
       saveNewColumn(newColumn);
     } catch (error) {
       console.error("Error adding new column:", error);
     }
   };
 
+  // Function to remove selected rows
+  const handleRemoveRows = () => {
+    try {
+      // Get remaining rows by excluding selected rows
+      const updatedRows = rows.filter(
+        (row) => !selectedRows.some((selected) => selected.id === row.id)
+      );
+
+      // Update table and state
+      setRows(updatedRows);
+      instanceRef.current.setData(updatedRows);
+      setSelectedRows([]); // Clear selection
+    } catch (error) {
+      console.error("Error removing rows:", error);
+    }
+  };
+
   return {
     tableContainerRef,
     handleAddColumn,
+    handleRemoveRows, // Expose remove function
     loading: !data,
     columns,
     rows,
+    selectedRows, // Expose selected rows
   };
 };
 
