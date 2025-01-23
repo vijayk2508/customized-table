@@ -25,12 +25,21 @@ const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
       headerMenu: headerMenu(instanceRef, editingColumn),
     };
 
+    // Update orderIndex of existing columns
+    columns.forEach((col, index) => {
+      const colDef = col.getDefinition();
+      if (left && index >= colIndex) {
+        colDef.orderIndex += 1;
+      } else if (!left && index > colIndex) {
+        colDef.orderIndex += 1;
+      }
+      instanceRef.current.updateColumnDefinition(colDef.field, colDef);
+    });
 
     // Add new column to the table
     instanceRef.current.addColumn(
       setFormattedCol(newColumn, editingColumn, instanceRef),
       left,
-
       columns[colIndex]?.getField() || null
     );
 
@@ -50,6 +59,7 @@ const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
     console.error("Error adding new column:", error);
   }
 };
+
 export const setColHeaderMenu = (instanceRef, editingColumn) => {
   const updatedColumns = instanceRef.current.getColumns().map((col) => {
     const colDef = col.getDefinition();
@@ -207,7 +217,7 @@ export const headerMenu = (instanceRef, editingColumn) => [
     label: "Delete Column",
     action: async function (e, column) {
       column.delete();
-      await deleteColumn(column.getDefinition().id)
+      await deleteColumn(column.getDefinition().id);
     },
   },
   {
