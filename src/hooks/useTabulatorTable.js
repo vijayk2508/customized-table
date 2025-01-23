@@ -42,6 +42,8 @@ const useTabulatorTable = (data) => {
       table.on("tableBuilt", () => {
         instanceRef.current = table;
         table?.setColumns(getColumnsFromData(columns, instanceRef));
+        console.log(rows);
+        
         table?.setData(rows);
       });
 
@@ -96,38 +98,38 @@ const useTabulatorTable = (data) => {
       setRows(updatedRows);
       instanceRef.current.setData(updatedRows);
 
-      const columnLayout = instanceRef.current.getColumnLayout();
-      const columnMapping = columnLayout.reduce((acc, curr) => {
-        acc[curr.field] = curr.id;
-        return acc;
-      }, {});
+      //const columnLayout = instanceRef.current.getColumnLayout();
+      // const columnMapping = columnLayout.reduce((acc, curr) => {
+      //   acc[curr.field] = curr.id;
+      //   return acc;
+      // }, {});
 
-      // Populate the field object using column IDs
-      const rows = instanceRef.current.getRows();
+      // // Populate the field object using column IDs
+      // const rows = instanceRef.current.getRows();
 
-      let formattedRows = [];
+      // let formattedRows = [];
 
-      rows.forEach((row) => {
-        const rowData = row.getData();
+      // rows.forEach((row) => {
+      //   const rowData = row.getData();
 
-        const formattedRowData = {
-          id: rowData.id,
-          field: {},
-          tableId: rowData.tableId,
-        };
+      //   const formattedRowData = {
+      //     id: rowData.id,
+      //     field: {},
+      //     tableId: rowData.tableId,
+      //   };
 
-        for (const key in rowData) {
-          if (key !== "id" && key !== "tableId" && columnMapping[key]) {
-            formattedRowData.field[columnMapping[key]] = {
-              value: rowData?.[key] || "",
-            };
-          }
-        }
+      //   for (const key in rowData) {
+      //     if (key !== "id" && key !== "tableId" && columnMapping[key]) {
+      //       formattedRowData.field[columnMapping[key]] = {
+      //         value: rowData?.[key] || "",
+      //       };
+      //     }
+      //   }
 
-        formattedRows.push(formattedRowData);
-      });
+      //   formattedRows.push(formattedRowData);
+      // });
 
-      saveNewColumn(newColumn, formattedRows);
+      saveNewColumn(newColumn);
     } catch (error) {
       console.error("Error adding new column:", error);
     }

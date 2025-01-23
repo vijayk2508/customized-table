@@ -69,20 +69,6 @@
       "tableId": 1,
       "editor": "input",
       "editable": true
-    },
-    {
-      "id": 9,
-      "title": "New Column 9",
-      "field": "new_column_9",
-      "editor": "input",
-      "editable": true
-    },
-    {
-      "id": 10,
-      "title": "New Column 10",
-      "field": "new_column_10",
-      "editor": "input",
-      "editable": true
     }
   ],
   "rows": [
@@ -112,12 +98,6 @@
         },
         "8": {
           "value": "male"
-        },
-        "9": {
-          "value": "test"
-        },
-        "10": {
-          "value": "y"
         }
       },
       "tableId": 1

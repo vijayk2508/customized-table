@@ -15,7 +15,7 @@ function transformData(data) {
 
     // Iterate through the columns and map the corresponding field values from rowData
     data.columns.forEach((column) => {
-      transformedRow[column.field] = row.field[column.id].value;
+      transformedRow[column.field] = row?.field?.[column?.id]?.value || "";
     });
 
     // Push the transformed row into the rows array
@@ -45,15 +45,10 @@ export const getTableData = async function (id = 1) {
   return response;
 };
 
-export const saveNewColumn = async (newColumn, rows) => {
+export const saveNewColumn = async (newColumn) => {
   try {
     // Save the new column to the columns endpoint
     await axiosInstance.post('/columns', newColumn);
-
-    // Optionally, you can also update the rows if needed
-    await Promise.all(rows.map(row => {
-      return axiosInstance.patch(`/rows/${row.id}`,row);
-    }));
   } catch (error) {
     console.error('Error saving new column:', error);
   }

@@ -65,6 +65,11 @@ To build all the Netlify functions in your project, use the following command:
 netlify functions:build --src path/to/your/functions
 ```
 
+```bash
+netlify functions:build --src netlify/functions
+```
+
+
 ### Description
 
 This command compiles all the functions located in the directory specified in your `netlify.toml` file (usually `netlify/functions/`). Make sure to run this command from the root of your project where the `netlify.toml` file is located.
@@ -90,3 +95,7 @@ netlify deploy
 ```
 
 This will give you a preview link for your changes.
+
+
+Add this is react app package.json if u want to run it locally
+json-server": "json-server --watch ./data/table.json --port 3030",
