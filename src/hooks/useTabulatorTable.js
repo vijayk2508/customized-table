@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
 import {
-  cellContextMenu,
   cellEdited,
   setColHeaderMenu,
   setFormattedCol,

@@ -49,10 +49,12 @@ const getHideColumnSubMenu = (instanceRef) => {
   const columns = table.getColumns();
 
   for (let column of columns) {
-    //create checkbox element using font awesome icons
-    let icon = document.createElement("i");
-    icon.classList.add("fas");
-    icon.classList.add(column.isVisible() ? "fa-check-square" : "fa-square");
+    if(column.getDefinition().id===0) continue
+    //create checkbox element
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = column.isVisible();
+    checkbox.setAttribute("data-field", column.getField());
 
     //build label
     let label = document.createElement("span");
@@ -60,7 +62,7 @@ const getHideColumnSubMenu = (instanceRef) => {
 
     title.textContent = " " + column.getDefinition().title;
 
-    label.appendChild(icon);
+    label.appendChild(checkbox);
     label.appendChild(title);
 
     //create menu item
@@ -71,16 +73,16 @@ const getHideColumnSubMenu = (instanceRef) => {
         e.stopPropagation();
 
         //toggle current column visibility
-        column.toggle();
-
-        //change menu item icon
-        if (column.isVisible()) {
-          icon.classList.remove("fa-square");
-          icon.classList.add("fa-check-square");
+        const field = checkbox.getAttribute("data-field");
+        const targetCol = instanceRef.current.getColumn(field);
+        if (checkbox.checked) {
+          targetCol.show();
         } else {
-          icon.classList.remove("fa-check-square");
-          icon.classList.add("fa-square");
+          targetCol.hide();
         }
+
+        //update checkbox state
+        checkbox.checked = targetCol.isVisible();
       },
     });
   }
@@ -105,6 +107,9 @@ export const headerMenu = (instanceRef) => [
   },
   {
     label: "Hide Column",
+    action: function (e, column) {
+      column.hide();
+    },
   },
 ];
 
