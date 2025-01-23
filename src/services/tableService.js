@@ -53,3 +53,12 @@ export const saveNewColumn = async (newColumn) => {
     console.error('Error saving new column:', error);
   }
 };
+
+export const deleteColumn = async (colId) => {
+  try {
+    // Save the new column to the columns endpoint
+    await axiosInstance.delete(`/columns/${colId}`);
+  } catch (error) {
+    console.error('Error saving new column:', error);
+  }
+};

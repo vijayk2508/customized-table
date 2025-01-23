@@ -89,6 +89,7 @@ function generateMockData(totalUsers) {
 
   const rows = Array.from({ length: totalUsers }, (_, index) => ({
     id: (index + 1).toString(),
+    orderIndex: index + 1,
     field: {
       1: {
         value: faker.person.fullName(),

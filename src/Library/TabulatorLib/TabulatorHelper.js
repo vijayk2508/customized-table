@@ -1,5 +1,5 @@
 import { axiosInstance } from "../../services";
-import { saveNewColumn } from "../../services/tableService";
+import { deleteColumn, saveNewColumn } from "../../services/tableService";
 
 const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
   try {
@@ -10,21 +10,28 @@ const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
 
     const newColumnSlug = `new_column_${columns.length + 1}`;
 
+    // Determine the new column's orderIndex
+    const newOrderIndex = left
+      ? columns[colIndex].getDefinition().orderIndex
+      : columns[colIndex].getDefinition().orderIndex + 1;
+
     const newColumn = {
-      id: columns.length + 1,
+      id: String(columns.length + 1),
       title: `New Column ${columns.length + 1}`,
       field: newColumnSlug,
       editor: "input",
       editable: false,
+      orderIndex: newOrderIndex,
+      headerMenu: headerMenu(instanceRef, editingColumn),
     };
+
 
     // Add new column to the table
     instanceRef.current.addColumn(
       setFormattedCol(newColumn, editingColumn, instanceRef),
       left,
-      (!left
-        ? columns[colIndex + 1]?.getField()
-        : columns[colIndex]?.getField()) || null
+
+      columns[colIndex]?.getField() || null
     );
 
     // Update rows to include the new column
@@ -43,7 +50,6 @@ const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
     console.error("Error adding new column:", error);
   }
 };
-
 export const setColHeaderMenu = (instanceRef, editingColumn) => {
   const updatedColumns = instanceRef.current.getColumns().map((col) => {
     const colDef = col.getDefinition();
@@ -62,7 +68,7 @@ export const setColHeaderMenu = (instanceRef, editingColumn) => {
   instanceRef.current.setColumns(updatedColumns);
 };
 
-export const zerothCol = (instanceRef) => {
+export const zerothCol = (instanceRef, _editingColumn) => {
   const colData = {
     id: 0,
     title: "",
@@ -92,7 +98,7 @@ export const zerothCol = (instanceRef) => {
   return colData;
 };
 
-export const zerothColContextMenu = function (instanceRef) {
+export const zerothColContextMenu = function (instanceRef, _editingColumn) {
   const selectedRows = instanceRef.current.getSelectedRows();
   const menu = [];
 
@@ -199,8 +205,9 @@ export const headerMenu = (instanceRef, editingColumn) => [
   },
   {
     label: "Delete Column",
-    action: function (e, column) {
+    action: async function (e, column) {
       column.delete();
+      await deleteColumn(column.getDefinition().id)
     },
   },
   {
