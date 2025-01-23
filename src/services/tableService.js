@@ -52,7 +52,7 @@ export const saveNewColumn = async (newColumn, rows) => {
 
     // Optionally, you can also update the rows if needed
     await Promise.all(rows.map(row => {
-      return axiosInstance.patch(`/rows`,rows);
+      return axiosInstance.patch(`/rows/${row.id}`,row);
     }));
   } catch (error) {
     console.error('Error saving new column:', error);

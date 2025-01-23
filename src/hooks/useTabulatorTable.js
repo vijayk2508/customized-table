@@ -7,7 +7,7 @@ import {
   getColumnsFromData,
   updateCol,
 } from "../Library/TabulatorLib/TabulatorHelper";
-//import { saveNewColumn } from "../services/tableService";
+import { saveNewColumn } from "../services/tableService";
 
 const useTabulatorTable = (data) => {
   const tableContainerRef = useRef();
@@ -61,56 +61,76 @@ const useTabulatorTable = (data) => {
 
   // Function to handle adding a new column
   const handleAddColumn = () => {
-    const newColumnSlug = `new_column_${columns.length + 1}`;
+    try {
+      const newColumnSlug = `new_column_${columns.length + 1}`;
 
-    const newColumn = {
-      title: `New Column ${columns.length + 1}`,
-      field: newColumnSlug,
-      editableTitle: false,
-    };
-    instanceRef.current.addColumn(newColumn, true, newColumn.field);
+      const newColumn = {
+        id: columns.length + 1,
+        title: `New Column ${columns.length + 1}`,
+        field: newColumnSlug,
+        editor: "input",
+        editable: true,
+      };
 
-    setColumns((prevColumns) => [...prevColumns, newColumn]);
+      // Add new column to the table
+      instanceRef.current.addColumn(
+        {
+          ...newColumn,
+          headerClick: (e, column) => updateCol(e, column, instanceRef),
+        },
+        false,
+        newColumn.field
+      );
 
-    // setRows((prevRows) => {
-    //   const getAllRows = prevRows.map((row) => ({
-    //     ...row,
-    //     [newColumnSlug]: "New",
-    //   }));
+      // Update rows to include the new column
+      const updatedRows = instanceRef.current.getRows().map((row) => {
+        const rowData = row.getData();
+        return {
+          ...rowData,
+          [newColumnSlug]: rowData[newColumnSlug] || "", // Add new column with default value
+        };
+      });
 
-    //   const columnLayout = instanceRef.current.getColumnLayout();
+      // Update state
+      setColumns((prevColumns) => [...prevColumns, newColumn]);
+      setRows(updatedRows);
+      instanceRef.current.setData(updatedRows);
 
-    //   const columnMapping = columnLayout.reduce((acc, curr) => {
-    //     acc[curr.field] = curr.id; // Map field names to their corresponding column IDs
-    //     return acc;
-    //   }, {});
+      const columnLayout = instanceRef.current.getColumnLayout();
+      const columnMapping = columnLayout.reduce((acc, curr) => {
+        acc[curr.field] = curr.id;
+        return acc;
+      }, {});
 
-    //   const updatedRows = [];
-    //   getAllRows.forEach((rowData) => {
-    //     const formattedRowData = {
-    //       id: rowData.id,
-    //       field: {}, // Initialize an empty field object
-    //       tableId: rowData.tableId,
-    //     };
+      // Populate the field object using column IDs
+      const rows = instanceRef.current.getRows();
 
-    //     for (const key in rowData) {
-    //       if (key !== "id" && key !== "tableId" && columnMapping[key]) {
-    //         formattedRowData.field[columnMapping[key]] = {
-    //           value: rowData[key],
-    //         };
-    //       }
-    //     }
+      let formattedRows = [];
 
-    //     updatedRows.push(formattedRowData);
-    //   });
+      rows.forEach((row) => {
+        const rowData = row.getData();
 
-    //   // Populate the `field` object using column IDs
+        const formattedRowData = {
+          id: rowData.id,
+          field: {},
+          tableId: rowData.tableId,
+        };
 
-    //   // Save the new column to the backend
-    //   //saveNewColumn(newColumn, updatedRows); // Update this line
+        for (const key in rowData) {
+          if (key !== "id" && key !== "tableId" && columnMapping[key]) {
+            formattedRowData.field[columnMapping[key]] = {
+              value: rowData?.[key] || "",
+            };
+          }
+        }
 
-    //   return updatedRows;
-    // });
+        formattedRows.push(formattedRowData);
+      });
+
+      saveNewColumn(newColumn, formattedRows);
+    } catch (error) {
+      console.error("Error adding new column:", error);
+    }
   };
 
   return {

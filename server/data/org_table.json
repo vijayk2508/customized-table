@@ -28,10 +28,13 @@
       "id": "1",
       "field": {
         "1": {
-          "value": "John Doe 13233sssssssdsdsdsdsdsds"
+          "value": "John Doe"
         },
         "2": {
-          "value": "30"
+          "value": "30555"
+        },
+        "3": {
+          "value": "12"
         }
       },
       "tableId": 1
@@ -40,10 +43,13 @@
       "id": "2",
       "field": {
         "1": {
-          "value": "Jack Done 12133 555"
+          "value": "Jack Done"
         },
         "2": {
-          "value": 25
+          "value": "25"
+        },
+        "3": {
+          "value": "212"
         }
       },
       "tableId": 1
