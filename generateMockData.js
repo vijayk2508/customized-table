@@ -126,7 +126,7 @@ function generateMockData(totalUsers) {
 const mockData = generateMockData(300); // Change the number of users as needed
 
 // Ensure the directory exists
-const dirPath = path.join(__dirname, "data");
+const dirPath = path.join(__dirname, "public", "data");
 if (!fs.existsSync(dirPath)) {
   fs.mkdirSync(dirPath, { recursive: true });
 }

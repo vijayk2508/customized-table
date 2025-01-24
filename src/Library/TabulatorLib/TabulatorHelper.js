@@ -10,38 +10,21 @@ const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
 
     const newColumnSlug = `new_column_${columns.length + 1}`;
 
-    // Determine the new column's orderIndex
-    const newOrderIndex = left
-      ? columns[colIndex].getDefinition().orderIndex
-      : columns[colIndex].getDefinition().orderIndex + 1;
-
     const newColumn = {
       id: String(columns.length + 1),
       title: `New Column ${columns.length + 1}`,
       field: newColumnSlug,
       editor: "input",
-      editable: false,
-      orderIndex: newOrderIndex,
-      headerMenu: headerMenu(instanceRef, editingColumn),
+      editable: false
     };
 
-    // Update orderIndex of existing columns
-    columns.forEach((col, index) => {
-      const colDef = col.getDefinition();
-      if (left && index >= colIndex) {
-        colDef.orderIndex += 1;
-      } else if (!left && index > colIndex) {
-        colDef.orderIndex += 1;
-      }
-      instanceRef.current.updateColumnDefinition(colDef.field, colDef);
-    });
-
-    // Add new column to the table
     instanceRef.current.addColumn(
       setFormattedCol(newColumn, editingColumn, instanceRef),
       left,
       columns[colIndex]?.getField() || null
     );
+
+    console.log(instanceRef.current);
 
     // Update rows to include the new column
     const updatedRows = instanceRef.current.getRows().map((row) => {
@@ -55,6 +38,15 @@ const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
     instanceRef.current.setData(updatedRows);
 
     saveNewColumn(newColumn);
+
+    const allColumns = instanceRef.current
+      .getColumns()
+      .map((c) => c.getDefinition())
+      .slice(1)
+      .map((c, idx) => ({ ...c, orderIndex: idx + 1 }));
+
+
+
   } catch (error) {
     console.error("Error adding new column:", error);
   }
@@ -346,5 +338,6 @@ export const setFormattedCol = (column, editingColumn, instanceRef) => {
       updateCol(e, column, instanceRef);
     },
     contextMenu: cellContextMenu,
+    headerMenu: headerMenu(instanceRef, editingColumn),
   };
 };

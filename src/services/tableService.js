@@ -1,4 +1,5 @@
 import { axiosInstance } from ".";
+// import data from "data/table.json"
 
 function transformData(data) {
   // Initialize the new structure
@@ -26,31 +27,39 @@ function transformData(data) {
 }
 
 export const getTableData = async function (id = 1) {
-  const tableResponse = await axiosInstance.get(`/tables/${id}`);
-  const tableData = tableResponse.data;
+  const response = await fetch("/data/table.json");
+  const data = await response.json();
 
-  const columnsResponse = await axiosInstance.get(
-    `/columns?tableId=${tableData?.id}`
-  );
-  const columnData = columnsResponse.data;
+  // const tableResponse = await axiosInstance.get(`/tables/${id}`);
+  // const tableData = tableResponse.data;
 
-  const rowResponse = await axiosInstance.get(`/rows?tableId=${tableData?.id}`);
-  const rowData = rowResponse.data;
+  // const columnsResponse = await axiosInstance.get(
+  //   `/columns?tableId=${tableData?.id}`
+  // );
+  // const columnData = columnsResponse.data;
 
-  let response = transformData({
+  // const rowResponse = await axiosInstance.get(`/rows?tableId=${tableData?.id}`);
+  // const rowData = rowResponse.data;
+
+  const tableData = data.tables.find((tab) => tab.id === "1");
+  const rowData = data.rows.filter((row) => row.tableId === 1);
+  const columnData = data.columns.filter((col) => col.tableId === 1);
+
+  let transformedResponse = transformData({
     ...tableData,
     columns: columnData,
     rows: rowData,
   });
-  return response;
+
+  return transformedResponse;
 };
 
 export const saveNewColumn = async (newColumn) => {
   try {
     // Save the new column to the columns endpoint
-    await axiosInstance.post('/columns', newColumn);
+    await axiosInstance.post("/columns", newColumn);
   } catch (error) {
-    console.error('Error saving new column:', error);
+    console.error("Error saving new column:", error);
   }
 };
 
@@ -59,6 +68,6 @@ export const deleteColumn = async (colId) => {
     // Save the new column to the columns endpoint
     await axiosInstance.delete(`/columns/${colId}`);
   } catch (error) {
-    console.error('Error saving new column:', error);
+    console.error("Error saving new column:", error);
   }
 };

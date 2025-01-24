@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getTableData } from "../services/tableService";
+import { getTableData } from "../services/tableService"; 
 
 /**
  * Custom hook to fetch table data based on the table ID.

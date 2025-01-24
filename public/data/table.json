@@ -77,6 +77,34 @@
       "tableId": 1,
       "editor": "input",
       "editable": true
+    },
+    {
+      "id": "10",
+      "title": "New Column 10",
+      "field": "new_column_10",
+      "editor": "input",
+      "editable": false,
+      "orderIndex": 1,
+      "headerMenu": [
+        {
+          "label": "Add Column Right Side"
+        },
+        {
+          "label": "Add Column Left Side"
+        },
+        {
+          "label": "Delete Column"
+        },
+        {
+          "label": "Sort By Asc"
+        },
+        {
+          "label": "Sort By Dsc"
+        },
+        {
+          "label": "Hide Column"
+        }
+      ]
     }
   ],
   "rows": [
