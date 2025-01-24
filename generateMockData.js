@@ -82,8 +82,9 @@ function generateMockData(totalUsers) {
       title: "Gender",
       field: "gender",
       tableId: 1,
-      editor: "input",
       editable: false,
+      editor: "list",
+      editorParams: { values: ["male", "female"] },
     },
   ];
 

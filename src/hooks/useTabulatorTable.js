@@ -3,6 +3,7 @@ import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
 import {
   cellEdited,
+  rowContextMenu,
   setColHeaderMenu,
   setFormattedCol,
   setHeaderNonEditable,
@@ -33,53 +34,43 @@ const useTabulatorTable = (data) => {
         columns: [],
         layout: "fitColumns",
         movableColumns: true,
-        pagination: "local",
+        pagination: true,
+        paginationMode: "remote",
+        paginationAddRow: "table",
         paginationSize: 10,
+        paginationSizeSelector: [5, 10, 50, 100],
+        responsiveLayout: "hide",
+        resizableColumns: false,
+        layoutColumnsOnNewData: true,
         placeholderEmpty: "Empty",
-        rowContextMenu1: [
-          {
-            label: "Delete Row",
-            action: function (e, row) {
-              row.delete();
-            },
-          },
-          {
-            separator: true,
-          },
-          {
-            disabled: true,
-            label: "Add 1 row above",
-            action: function () {
-              console.log("Add 1 row above", arguments);
-            },
-          },
-          {
-            separator: true,
-          },
-          {
-            disabled: true,
-            label: "Add 1 row below",
-            action: function () {
-              console.log("Add 1 row below", arguments);
-            },
-          },
-        ],
+        rowContextMenu: rowContextMenu,
         autoColumns: false,
       });
 
       table.on("tableBuilt", () => {
         instanceRef.current = table;
 
-        const initialColumns = columns.map((column) =>
-          setFormattedCol(column, editingColumn, instanceRef)
-        ).sort((a, b) => a.orderIndex - b.orderIndex);
+        const initialColumns = columns
+          .map((column) =>
+            setFormattedCol(
+              column,
+              editingColumn,
+              instanceRef,
+              setColumns,
+              setRows
+            )
+          )
+          .sort((a, b) => a.orderIndex - b.orderIndex);
 
         initialColumns.unshift(zerothCol(instanceRef));
 
-        table?.setColumns(initialColumns);
-        table?.setData(rows);
+        table.setColumns(initialColumns);
+        table.setPageSize(10);
+        table.setMaxPage(rows.totalPages);
+        table.setPage(1);
+        table.setData(rows.data);
 
-        setColHeaderMenu(instanceRef, editingColumn);
+        setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows });
       });
 
       table.on("rowSelectionChanged", function () {
@@ -99,11 +90,11 @@ const useTabulatorTable = (data) => {
       });
 
       table.on("cellEditCancelled", (cell) => {
-        cell.getElement().blur();
+        cell?.getElement?.()?.blur?.();
       });
 
       table.on("cellEdited", (cell) => {
-        cell.getElement().blur();
+        cell?.getElement?.()?.blur?.();
       });
 
       table.on("rowClick", async (cell) => {
@@ -115,8 +106,6 @@ const useTabulatorTable = (data) => {
       });
     }
   }, [columns, editingColumn, rows]);
-
-  // Function to handle adding a new column
 
   return {
     tableContainerRef,

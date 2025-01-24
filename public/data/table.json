@@ -70,13 +70,14 @@
       "editable": false
     },
     {
-      "id": "8",
+      "id": 8,
       "orderIndex": 8,
       "title": "Gender",
       "field": "gender",
       "tableId": 1,
-      "editor": "input",
-      "editable": false
+      "editable": false,
+      "editor": "list",
+      "editorParams": { "values": ["male", "female"] }
     },
     {
       "id": "10",

@@ -1,7 +1,43 @@
 import { axiosInstance } from "../../services";
-import { deleteColumn, saveNewColumn } from "../../services/tableService";
+import { deleteColumn } from "../../services/tableService";
 
-const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
+export const rowContextMenu = [
+  {
+    label: "Delete Row",
+    action: function (e, row) {
+      row.delete();
+    },
+  },
+  {
+    separator: true,
+  },
+  {
+    disabled: true,
+    label: "Add 1 row above",
+    action: function () {
+      console.log("Add 1 row above", arguments);
+    },
+  },
+  {
+    separator: true,
+  },
+  {
+    disabled: true,
+    label: "Add 1 row below",
+    action: function () {
+      console.log("Add 1 row below", arguments);
+    },
+  },
+];
+
+const handleAddColumn = ({
+  column,
+  editingColumn,
+  instanceRef,
+  left = false,
+  setColumns,
+  setRows,
+}) => {
   try {
     const columns = instanceRef.current.getColumns();
     const colIndex = columns.findIndex(
@@ -15,7 +51,7 @@ const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
       title: `New Column ${columns.length + 1}`,
       field: newColumnSlug,
       editor: "input",
-      editable: false
+      editable: false,
     };
 
     instanceRef.current.addColumn(
@@ -37,22 +73,26 @@ const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
 
     instanceRef.current.setData(updatedRows);
 
-    saveNewColumn(newColumn);
-
     // const allColumns = instanceRef.current
     //   .getColumns()
     //   .map((c) => c.getDefinition())
     //   .slice(1)
     //   .map((c, idx) => ({ ...c, orderIndex: idx + 1 }));
 
+    //   console.log(allColumns);
 
-
+    // setColumns(allColumns);
   } catch (error) {
     console.error("Error adding new column:", error);
   }
 };
 
-export const setColHeaderMenu = (instanceRef, editingColumn) => {
+export const setColHeaderMenu = ({
+  instanceRef,
+  editingColumn,
+  setColumns,
+  setRows,
+}) => {
   const updatedColumns = instanceRef.current.getColumns().map((col) => {
     const colDef = col.getDefinition();
     return colDef.id === 0
@@ -63,7 +103,12 @@ export const setColHeaderMenu = (instanceRef, editingColumn) => {
         }
       : {
           ...colDef,
-          headerMenu: headerMenu(instanceRef, editingColumn),
+          headerMenu: headerMenu({
+            instanceRef,
+            editingColumn,
+            setColumns,
+            setRows,
+          }),
         };
   });
 
@@ -196,14 +241,35 @@ const getHideColumnSubMenu = (instanceRef) => {
 };
 
 //define row context menu
-export const headerMenu = (instanceRef, editingColumn) => [
+export const headerMenu = ({
+  instanceRef,
+  editingColumn,
+  setColumns,
+  setRows,
+}) => [
   {
     label: "Add Column Right Side",
-    action: (e, col) => handleAddColumn(col, editingColumn, instanceRef),
+    action: (e, column) =>
+      handleAddColumn({
+        column,
+        editingColumn,
+        instanceRef,
+        left: false,
+        setColumns,
+        setRows,
+      }),
   },
   {
     label: "Add Column Left Side",
-    action: (e, col) => handleAddColumn(col, editingColumn, instanceRef, true),
+    action: (e, column) =>
+      handleAddColumn({
+        column,
+        editingColumn,
+        instanceRef,
+        left: true,
+        setColumns,
+        setRows,
+      }),
   },
   {
     label: "Delete Column",
@@ -244,9 +310,7 @@ export const cellContextMenu = [
 
 export const updateCol = async function (
   _e,
-  column,
-  instanceRef,
-  editableTitle = true
+  { column, instanceRef, editableTitle = true }
 ) {
   try {
     const currCol = column?.getDefinition?.();
@@ -257,7 +321,7 @@ export const updateCol = async function (
       });
 
       if (currCol.id && !editableTitle) {
-        await axiosInstance.put(`/columns/${currCol.id}`, currCol);
+        //await axiosInstance.put(`/columns/${currCol.id}`, currCol);
       }
     }
   } catch (error) {
@@ -326,18 +390,23 @@ export const setHeaderNonEditable = async function (
   }
 };
 
-export const setFormattedCol = (column, editingColumn, instanceRef) => {
+export const setFormattedCol = (
+  column,
+  editingColumn,
+  instanceRef,
+  setColumns,
+  setRows
+) => {
   return {
     ...column,
-    editor: "input",
-    headerFilter: false, // add header filter to every column
-    headerSort: false,
+    headerFilter: true, // add header filter to every column
+    headerSort: true,
     editableTitle: false,
     headerDblClick: (e, column) => {
       editingColumn.current = column;
-      updateCol(e, column, instanceRef);
+      updateCol(e, { column, instanceRef, setColumns, setRows });
     },
     contextMenu: cellContextMenu,
-    headerMenu: headerMenu(instanceRef, editingColumn),
+    headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
   };
 };
