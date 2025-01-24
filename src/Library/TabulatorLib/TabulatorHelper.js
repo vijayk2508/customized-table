@@ -410,3 +410,14 @@ export const setFormattedCol = (
     headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
   };
 };
+
+export const getColumnMapping = (instanceRef) => {
+  if (!instanceRef.current) return;
+  const columnLayout = instanceRef.current?.getColumnDefinitions();
+  const columnMapping = columnLayout.reduce((acc, curr) => {
+    acc[curr.field] = curr.id; // Map field names to their corresponding column IDs
+    return acc;
+  }, {});
+
+  return columnMapping;
+};

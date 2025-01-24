@@ -3,6 +3,7 @@ import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
 import {
   cellEdited,
+  getColumnMapping,
   rowContextMenu,
   setColHeaderMenu,
   setFormattedCol,
@@ -32,22 +33,15 @@ const useTabulatorTable = (columnData) => {
       const table = new Tabulator(domEle, {
         ajaxURL: "https://customized-table-backend.vercel.app/rows",
         data: [],
-        //columns: columnData,
+        columns: [],
         layout: "fitDataStretch",
         movableColumns: true,
+        //Pagination
         pagination: true,
         paginationMode: "remote",
         paginationAddRow: "table",
         paginationSize: 10,
         paginationSizeSelector: [5, 10, 50, 100],
-        responsiveLayout: "hide",
-        resizableColumns: false,
-        layoutColumnsOnNewData: true,
-        placeholderEmpty: "Empty",
-        rowContextMenu: rowContextMenu,
-        autoColumns: false,
-        history: true,
-        initialSort: [{ column: "name", dir: "asc" }],
         paginationCounter: function (
           pageSize,
           currentRow,
@@ -60,8 +54,37 @@ const useTabulatorTable = (columnData) => {
           } of ${totalPages} rows`;
         },
 
-        ajaxURLGenerator : (url, _config, params) => {
-          return `${url}?_page=${params.page}&_per_page=${params.size}`;
+        //filter
+        filterMode: "remote",
+
+        responsiveLayout: "hide",
+        resizableColumns: false,
+        layoutColumnsOnNewData: true,
+        placeholderEmpty: "Empty",
+        rowContextMenu: rowContextMenu,
+        autoColumns: false,
+        history: true,
+
+        ajaxURLGenerator: (url, _config, params) => {
+          console.log(params);
+          const columnMap = getColumnMapping(instanceRef);
+          const filterQuery =
+            params?.filter
+              ?.map(
+                (filter) =>
+                  `field.${columnMap[filter.field]}.value_like=${filter.value}`
+              )
+              ?.join("&") || "";
+
+          let queryURL = `${url}?_page=${params.page}&_limit=${params.size}&_sort=id`;
+
+          if (filterQuery) {
+            queryURL += `&${filterQuery}`;
+          }
+
+          console.log(queryURL);
+
+          return queryURL;
         },
         ajaxResponse: (_url, _params, response) => {
           return {
@@ -113,7 +136,9 @@ const useTabulatorTable = (columnData) => {
       });
 
       table.on("cellDblClick", (e, cell) => {
-        cell.edit(true);
+        if (cell.getColumn().getDefinition().editor) {
+          cell?.edit?.(true);
+        }
       });
 
       table.on("cellEditCancelled", (cell) => {
