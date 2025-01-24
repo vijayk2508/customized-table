@@ -3,9 +3,9 @@ import useTabulatorTable from "../../hooks/useTabulatorTable";
 import useMockGetTableData from "../../hooks/useMockGetTableData";
 
 function StaticTabulatorTable() {
-  const { data, loading, error } = useMockGetTableData();
+  const { columnData, loading, error } = useMockGetTableData();
 
-  const { tableContainerRef } = useTabulatorTable(data);
+  const { tableContainerRef } = useTabulatorTable(columnData);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -15,7 +15,7 @@ function StaticTabulatorTable() {
     return <div>{error}</div>;
   }
 
-  if (!data) {
+  if (!columnData) {
     return <div>No data found</div>;
   }
 

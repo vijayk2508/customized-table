@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getTableData } from "../services/tableService"; 
+import { getTableColumnData } from "../services/tableService"; 
 
 /**
  * Custom hook to fetch table data based on the table ID.
@@ -8,7 +8,7 @@ import { getTableData } from "../services/tableService";
  * @returns {object} - An object containing the table data, loading state, and any error.
  */
 const useMockGetTableData = () => {
-  const [data, setData] = useState(null);
+  const [columnData, setColumnData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mainId] = useState(
@@ -16,10 +16,10 @@ const useMockGetTableData = () => {
   );
 
   useEffect(() => {
-    const fetchTableData = async () => {
+    const fetchTableColumnData = async () => {
       try {
-        const data = await getTableData();
-        setData(data);
+        const columnData = await getTableColumnData();
+        setColumnData(columnData);
         setLoading(false);
       } catch (err) {
         debugger;
@@ -28,10 +28,10 @@ const useMockGetTableData = () => {
       }
     };
 
-    fetchTableData();
+    fetchTableColumnData();
   }, []);
 
-  return { data, loading, error, mainId };
+  return { columnData, loading, error, mainId };
 };
 
 export default useMockGetTableData;

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "http://localhost:3030"//"https://customized-table-backend.vercel.app/api";
+const baseURL = "https://customized-table-backend.vercel.app";
 
 const headers = {
   "Content-Type": "application/json",

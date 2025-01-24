@@ -10,8 +10,9 @@ import {
   updateCol,
   zerothCol,
 } from "../Library/TabulatorLib/TabulatorHelper";
+import { getTransformData } from "../services/tableService";
 
-const useTabulatorTable = (data) => {
+const useTabulatorTable = (columnData) => {
   const tableContainerRef = useRef();
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
@@ -19,20 +20,20 @@ const useTabulatorTable = (data) => {
   const instanceRef = useRef();
 
   useEffect(() => {
-    if (data) {
-      setColumns(data.columns);
-      setRows(data.rows);
+    if (columnData) {
+      setColumns(columnData);
     }
-  }, [data]);
+  }, [columnData]);
 
   useEffect(() => {
     if (!instanceRef.current && tableContainerRef.current) {
       const domEle = tableContainerRef.current;
 
       const table = new Tabulator(domEle, {
+        ajaxURL: "https://customized-table-backend.vercel.app/rows",
         data: [],
-        columns: [],
-        layout: "fitColumns",
+        //columns: columnData,
+        layout: "fitDataStretch",
         movableColumns: true,
         pagination: true,
         paginationMode: "remote",
@@ -45,6 +46,32 @@ const useTabulatorTable = (data) => {
         placeholderEmpty: "Empty",
         rowContextMenu: rowContextMenu,
         autoColumns: false,
+        history: true,
+        initialSort: [{ column: "name", dir: "asc" }],
+        paginationCounter: function (
+          pageSize,
+          currentRow,
+          currentPage,
+          _totalRows,
+          totalPages
+        ) {
+          return `Showing ${currentPage} to ${
+            currentRow + pageSize - 1
+          } of ${totalPages} rows`;
+        },
+
+        ajaxURLGenerator : (url, _config, params) => {
+          return `${url}?_page=${params.page}&_per_page=${params.size}`;
+        },
+        ajaxResponse: (_url, _params, response) => {
+          return {
+            data: getTransformData({
+              columns: columns,
+              rows: response,
+            }).rows,
+            last_page: 10,
+          };
+        },
       });
 
       table.on("tableBuilt", () => {
