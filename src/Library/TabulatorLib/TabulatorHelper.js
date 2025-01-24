@@ -39,11 +39,11 @@ const handleAddColumn = (column, editingColumn, instanceRef, left = false) => {
 
     saveNewColumn(newColumn);
 
-    const allColumns = instanceRef.current
-      .getColumns()
-      .map((c) => c.getDefinition())
-      .slice(1)
-      .map((c, idx) => ({ ...c, orderIndex: idx + 1 }));
+    // const allColumns = instanceRef.current
+    //   .getColumns()
+    //   .map((c) => c.getDefinition())
+    //   .slice(1)
+    //   .map((c, idx) => ({ ...c, orderIndex: idx + 1 }));
 
 
 
