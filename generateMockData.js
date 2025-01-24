@@ -20,7 +20,7 @@ function generateMockData(totalUsers) {
       field: "name",
       tableId: 1,
       editor: "input",
-      editable: true,
+      editable: false,
     },
     {
       id: 2,
@@ -29,7 +29,7 @@ function generateMockData(totalUsers) {
       field: "age",
       tableId: 1,
       editor: "input",
-      editable: true,
+      editable: false,
     },
     {
       id: 3,
@@ -38,7 +38,7 @@ function generateMockData(totalUsers) {
       field: "email",
       tableId: 1,
       editor: "input",
-      editable: true,
+      editable: false,
     },
     {
       id: 4,
@@ -47,7 +47,7 @@ function generateMockData(totalUsers) {
       field: "phone",
       tableId: 1,
       editor: "input",
-      editable: true,
+      editable: false,
     },
     {
       id: 5,
@@ -56,7 +56,7 @@ function generateMockData(totalUsers) {
       field: "address",
       tableId: 1,
       editor: "input",
-      editable: true,
+      editable: false,
     },
     {
       id: 6,
@@ -65,7 +65,7 @@ function generateMockData(totalUsers) {
       field: "city",
       tableId: 1,
       editor: "input",
-      editable: true,
+      editable: false,
     },
     {
       id: 7,
@@ -74,7 +74,7 @@ function generateMockData(totalUsers) {
       field: "country",
       tableId: 1,
       editor: "input",
-      editable: true,
+      editable: false,
     },
     {
       id: 8,
@@ -83,7 +83,7 @@ function generateMockData(totalUsers) {
       field: "gender",
       tableId: 1,
       editor: "input",
-      editable: true,
+      editable: false,
     },
   ];
 

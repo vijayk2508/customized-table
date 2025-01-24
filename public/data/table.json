@@ -13,7 +13,7 @@
       "field": "name",
       "tableId": 1,
       "editor": "input",
-      "editable": true
+      "editable": false
     },
     {
       "id": "2",
@@ -22,7 +22,7 @@
       "field": "age",
       "tableId": 1,
       "editor": "input",
-      "editable": true
+      "editable": false
     },
     {
       "id": "3",
@@ -31,7 +31,7 @@
       "field": "email",
       "tableId": 1,
       "editor": "input",
-      "editable": true
+      "editable": false
     },
     {
       "id": "4",
@@ -40,7 +40,7 @@
       "field": "phone",
       "tableId": 1,
       "editor": "input",
-      "editable": true
+      "editable": false
     },
     {
       "id": "5",
@@ -49,7 +49,7 @@
       "field": "address",
       "tableId": 1,
       "editor": "input",
-      "editable": true
+      "editable": false
     },
     {
       "id": "6",
@@ -58,7 +58,7 @@
       "field": "city",
       "tableId": 1,
       "editor": "input",
-      "editable": true
+      "editable": false
     },
     {
       "id": "7",
@@ -67,7 +67,7 @@
       "field": "country",
       "tableId": 1,
       "editor": "input",
-      "editable": true
+      "editable": false
     },
     {
       "id": "8",
@@ -76,7 +76,7 @@
       "field": "gender",
       "tableId": 1,
       "editor": "input",
-      "editable": true
+      "editable": false
     },
     {
       "id": "10",
