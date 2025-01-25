@@ -42,11 +42,9 @@ const useTabulatorTable = (columnData) => {
         // responsiveLayout: "hide", // hide column if it will not fixed in table
         resizableColumns: false,
         layoutColumnsOnNewData: true,
-
-
         movableRows: true,
         movableColumns: true,
-        
+
         //Pagination
         pagination: true,
         paginationMode: "remote",
@@ -68,6 +66,9 @@ const useTabulatorTable = (columnData) => {
         //filter
         filterMode: "remote",
 
+        //sorting
+        sortMode: "remote",
+
         placeholder: "No Data Available",
         placeholderHeaderFilter: "No Matching Data",
 
@@ -77,7 +78,10 @@ const useTabulatorTable = (columnData) => {
 
         ajaxURLGenerator: (url, _config, params) => {
           console.log(params);
+
           const columnMap = getColumnMapping(instanceRef);
+
+          // Generate the filter query
           const filterQuery =
             params?.filter
               ?.map(
@@ -86,16 +90,37 @@ const useTabulatorTable = (columnData) => {
               )
               ?.join("&") || "";
 
-          let queryURL = `${url}?_page=${params.page}&_limit=${params.size}&_sort=id`;
+          // Generate the sort query and order
+          const sortQuery =
+            params?.sort?.length > 0
+              ? params.sort
+                  .map((sort) => `field.${columnMap[sort.field]}.value`)
+                  .join(",")
+              : "id"; // Default sort by 'id'
 
+          const sortOrder =
+            params?.sort?.length > 0
+              ? params.sort
+                  .map((sort) => `${sort.direction || "asc"}`)
+                  .join(",")
+              : "asc"; // Default order 'asc'
+
+          // Construct the base query URL
+          let queryURL = `${url}?_page=${params.page}&_limit=${params.size}`;
+
+          // Append the filter query
           if (filterQuery) {
             queryURL += `&${filterQuery}`;
           }
+
+          // Append the sort query
+          queryURL += `&_sort=${sortQuery}&_order=${sortOrder}`;
 
           console.log(queryURL);
 
           return queryURL;
         },
+
         ajaxResponse: (_url, _params, response) => {
           const data = getTransformData({
             columns: columns,
@@ -120,15 +145,14 @@ const useTabulatorTable = (columnData) => {
       table.on("tableBuilt", () => {
         instanceRef.current = table;
 
-        const initialColumns = [...columns].map(
-          (column) =>
-            setFormattedCol(
-              column,
-              editingColumn,
-              instanceRef,
-              setColumns,
-              setRows
-            )
+        const initialColumns = [...columns].map((column) =>
+          setFormattedCol(
+            column,
+            editingColumn,
+            instanceRef,
+            setColumns,
+            setRows
+          )
         );
         //.sort((a, b) => a.orderIndex - b.orderIndex);
 

@@ -129,7 +129,7 @@ export const zerothCol = (instanceRef, _editingColumn) => {
     resizable: false,
     width: 10,
     hozAlign: "center",
-
+    frozen:true,
     cellClick: (e, cell) => {
       const row = cell.getRow();
       row.toggleSelect();
@@ -401,25 +401,32 @@ export const setFormattedCol = (
   const currColumn = JSON.parse(JSON.stringify(column));
   // delete currColumn.id;
   // delete currColumn.orderIndex;
-  delete currColumn.tableId;
-  delete currColumn.align;
-  delete currColumn.sortable;
-  delete currColumn.movable;
+  // delete currColumn.tableId;
+  // delete currColumn.align;
+  // delete currColumn.sortable;
+  // delete currColumn.movable;
 
   const options = {
     ...currColumn,
-    visible: true,
-    headerFilter: true, // add header filter to every column
     headerSort: true,
     editableTitle: false,
-    headerDblClick: (e, column) => {
-      editingColumn.current = column;
-      updateCol(e, { column, instanceRef, setColumns, setRows });
-    },
     contextMenu: cellContextMenu,
     headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
     formatter: Formatter?.[column?.formatter],
   };
+
+  if (currColumn?.editor) {
+    options.headerDblClick = (e, column) => {
+      editingColumn.current = column;
+      updateCol(e, { column, instanceRef, setColumns, setRows });
+    };
+  }
+
+  if (["star"].includes(currColumn?.formatter)) {
+    options.headerFilter = false;
+  }else{
+    options.headerFilter = true;
+  }
 
   if (Formatter?.[column?.formatter]) {
     options.formatter = Formatter?.[column?.formatter];
