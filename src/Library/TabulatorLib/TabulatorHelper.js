@@ -36,8 +36,6 @@ const handleAddColumn = ({
   editingColumn,
   instanceRef,
   left = false,
-  setColumns,
-  setRows,
 }) => {
   try {
     const columns = instanceRef.current.getColumns();
@@ -61,28 +59,7 @@ const handleAddColumn = ({
       columns[colIndex]?.getField() || null
     );
 
-    console.log(instanceRef.current);
-
-    // Update rows to include the new column
-    const updatedRows = instanceRef.current.getRows().map((row) => {
-      const rowData = row.getData();
-      return {
-        ...rowData,
-        [newColumnSlug]: rowData[newColumnSlug] || "", // Add new column with default value
-      };
-    });
-
-    instanceRef.current.setData(updatedRows);
-
-    // const allColumns = instanceRef.current
-    //   .getColumns()
-    //   .map((c) => c.getDefinition())
-    //   .slice(1)
-    //   .map((c, idx) => ({ ...c, orderIndex: idx + 1 }));
-
-    //   console.log(allColumns);
-
-    // setColumns(allColumns);
+    instanceRef.current.restoreRedraw(true);
   } catch (error) {
     console.error("Error adding new column:", error);
   }
@@ -129,7 +106,7 @@ export const zerothCol = (instanceRef, _editingColumn) => {
     resizable: false,
     width: 10,
     hozAlign: "center",
-    frozen:true,
+    frozen: true,
     cellClick: (e, cell) => {
       const row = cell.getRow();
       row.toggleSelect();
@@ -277,11 +254,11 @@ export const headerMenu = ({
     action: async function (e, column) {
       column.delete();
       await deleteColumn(column.getDefinition().id);
+      setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows }); // Update the header menu
     },
   },
   {
     label: "Sort By Asc",
-
     action: function (e, column) {
       column.getTable().setSort(column.getField(), "asc");
     },
@@ -296,6 +273,7 @@ export const headerMenu = ({
     label: "Hide Column",
     action: function (e, column) {
       column.hide();
+      setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows }); // Update the header menu
     },
   },
 ];
@@ -410,8 +388,8 @@ export const setFormattedCol = (
     ...currColumn,
     headerSort: true,
     editableTitle: false,
-    contextMenu: cellContextMenu,
-    headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
+    //contextMenu: cellContextMenu,
+    //headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
     formatter: Formatter?.[column?.formatter],
   };
 
@@ -422,10 +400,39 @@ export const setFormattedCol = (
     };
   }
 
-  if (["star"].includes(currColumn?.formatter)) {
+  if (
+    [
+      "star",
+      "lineFormatter",
+      "barFormatter",
+      "tristateFormatter",
+      "boxFormatter",
+    ].includes(currColumn?.formatter)
+  ) {
     options.headerFilter = false;
-  }else{
+  } else {
     options.headerFilter = true;
+  }
+
+  if (
+    [
+      "age",
+      "email",
+      "phone",
+      "address",
+      "city",
+      "country",
+      "occupation",
+      "rating",
+      "dob",
+      //"line",
+      "col",
+      "bar",
+      "tristate",
+      "box",
+    ].includes(String(currColumn?.field)?.toLowerCase())
+  ) {
+    options.visible = false;
   }
 
   if (Formatter?.[column?.formatter]) {

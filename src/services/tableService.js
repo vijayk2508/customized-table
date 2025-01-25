@@ -35,7 +35,7 @@ export const getTableColumnData = async function (page = 1, pageSize = 10) {
 export const saveNewColumn = async (newColumn) => {
   try {
     // Save the new column to the columns endpoint
-    await axiosInstance.post("/columns", newColumn);
+    //await axiosInstance.post("/columns", newColumn);
   } catch (error) {
     console.error("Error saving new column:", error);
   }
@@ -44,7 +44,7 @@ export const saveNewColumn = async (newColumn) => {
 export const deleteColumn = async (colId) => {
   try {
     // Save the new column to the columns endpoint
-    await axiosInstance.delete(`/columns/${colId}`);
+    //await axiosInstance.delete(`/columns/${colId}`);
   } catch (error) {
     console.error("Error saving new column:", error);
   }

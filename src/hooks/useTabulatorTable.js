@@ -154,10 +154,7 @@ const useTabulatorTable = (columnData) => {
             setRows
           )
         );
-        //.sort((a, b) => a.orderIndex - b.orderIndex);
-
-        console.log(initialColumns);
-
+       
         initialColumns.unshift(zerothCol(instanceRef));
 
         table.setColumns(initialColumns);

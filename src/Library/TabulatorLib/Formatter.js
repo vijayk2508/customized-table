@@ -1,18 +1,35 @@
 import { Chart, registerables } from "chart.js";
 import { BoxPlotController, BoxAndWiskers } from '@sgratzl/chartjs-chart-boxplot';
 
-
 // Register all necessary Chart.js components and the box plot plugin
 Chart.register(...registerables, BoxPlotController, BoxAndWiskers);
+
+// Helper function to initialize the chart
+const initializeChart = (canvas, chartConfig) => {
+  const ctx = canvas.getContext("2d");
+  new Chart(ctx, chartConfig);
+};
+
+// Lazy load chart using Intersection Observer
+const lazyLoadChart = (canvas, chartConfig) => {
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        initializeChart(canvas, chartConfig);
+        observer.unobserve(entry.target);
+      }
+    });
+  });
+
+  observer.observe(canvas);
+};
 
 // Line Chart Formatter
 const lineFormatter = function (cell) {
   const data = cell.getValue();
 
   const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  new Chart(ctx, {
+  const chartConfig = {
     type: "line",
     data: {
       labels: data.map((_, index) => index),
@@ -38,7 +55,9 @@ const lineFormatter = function (cell) {
       },
       layout: { padding: 5 },
     },
-  });
+  };
+
+  lazyLoadChart(canvas, chartConfig);
 
   canvas.style.height = "40px";
   canvas.style.width = "100%";
@@ -51,9 +70,7 @@ const barFormatter = function (cell) {
   const data = cell.getValue();
 
   const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  new Chart(ctx, {
+  const chartConfig = {
     type: "bar",
     data: {
       labels: data.map((_, index) => index),
@@ -78,7 +95,9 @@ const barFormatter = function (cell) {
       },
       layout: { padding: 5 },
     },
-  });
+  };
+
+  lazyLoadChart(canvas, chartConfig);
 
   canvas.style.height = "40px";
   canvas.style.width = "100%";
@@ -91,9 +110,7 @@ const tristateFormatter = function (cell) {
   const data = cell.getValue();
 
   const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  new Chart(ctx, {
+  const chartConfig = {
     type: "bar",
     data: {
       labels: data.map((_, index) => index),
@@ -122,7 +139,9 @@ const tristateFormatter = function (cell) {
       },
       layout: { padding: 5 },
     },
-  });
+  };
+
+  lazyLoadChart(canvas, chartConfig);
 
   canvas.style.height = "40px";
   canvas.style.width = "100%";
@@ -135,9 +154,7 @@ const boxFormatter = function (cell) {
   const data = cell.getValue();
 
   const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  new Chart(ctx, {
+  const chartConfig = {
     type: "boxplot", // Requires `chartjs-chart-box-and-violin-plot` package
     data: {
       labels: ["Box"],
@@ -162,7 +179,9 @@ const boxFormatter = function (cell) {
       },
       layout: { padding: 5 },
     },
-  });
+  };
+
+  lazyLoadChart(canvas, chartConfig);
 
   canvas.style.height = "40px";
   canvas.style.width = "100%";
