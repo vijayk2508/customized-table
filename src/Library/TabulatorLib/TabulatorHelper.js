@@ -1,4 +1,4 @@
-import { axiosInstance } from "../../services";
+// import { axiosInstance } from "../../services";
 import { deleteColumn } from "../../services/tableService";
 import Formatter from "./Formatter";
 
@@ -344,7 +344,7 @@ export const cellEdited = async function (cell) {
   }
 
   try {
-    await axiosInstance.put(`/rows/${rowData.id}`, formattedRowData);
+    //await axiosInstance.put(`/rows/${rowData.id}`, formattedRowData);
     console.log("Row updated successfully:", formattedRowData);
   } catch (error) {
     console.error("Error updating data:", error);
