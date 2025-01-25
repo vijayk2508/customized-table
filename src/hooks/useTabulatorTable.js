@@ -19,6 +19,7 @@ const useTabulatorTable = (columnData) => {
   const [rows, setRows] = useState([]);
   const editingColumn = useRef(null);
   const instanceRef = useRef();
+  console.log(instanceRef);
 
   useEffect(() => {
     if (columnData) {
@@ -34,9 +35,18 @@ const useTabulatorTable = (columnData) => {
         ajaxURL: "https://customized-table-backend.vercel.app/rows",
         data: [],
         columns: [],
-        
+
+        //layout
+        renderHorizontal: "virtual",
         layout: "fitDataStretch",
+        // responsiveLayout: "hide", // hide column if it will not fixed in table
+        resizableColumns: false,
+        layoutColumnsOnNewData: true,
+
+
+        movableRows: true,
         movableColumns: true,
+        
         //Pagination
         pagination: true,
         paginationMode: "remote",
@@ -58,10 +68,9 @@ const useTabulatorTable = (columnData) => {
         //filter
         filterMode: "remote",
 
-        responsiveLayout: "hide",
-        resizableColumns: false,
-        layoutColumnsOnNewData: true,
-        placeholderEmpty: "Empty",
+        placeholder: "No Data Available",
+        placeholderHeaderFilter: "No Matching Data",
+
         rowContextMenu: rowContextMenu,
         autoColumns: false,
         history: true,
@@ -88,23 +97,31 @@ const useTabulatorTable = (columnData) => {
           return queryURL;
         },
         ajaxResponse: (_url, _params, response) => {
+          const data = getTransformData({
+            columns: columns,
+            rows: response,
+          });
+
+          const rows =
+            data.rows?.map?.(({ tableId, ...rest }, idx) => ({
+              ...rest,
+              index: idx + 1,
+            })) || [];
+
           return {
-            data: getTransformData({
-              columns: columns,
-              rows: response,
-            }).rows,
+            data: rows,
             last_page: 10,
           };
         },
-        columnHeaderVertAlign :"middle",
-        columnHeaderSortMulti : true
+        columnHeaderVertAlign: "middle",
+        columnHeaderSortMulti: true,
       });
 
       table.on("tableBuilt", () => {
         instanceRef.current = table;
 
-        const initialColumns = columns
-          .map((column) =>
+        const initialColumns = [...columns].map(
+          (column) =>
             setFormattedCol(
               column,
               editingColumn,
@@ -112,16 +129,16 @@ const useTabulatorTable = (columnData) => {
               setColumns,
               setRows
             )
-          )
-          .sort((a, b) => a.orderIndex - b.orderIndex);
+        );
+        //.sort((a, b) => a.orderIndex - b.orderIndex);
+
+        console.log(initialColumns);
 
         initialColumns.unshift(zerothCol(instanceRef));
 
         table.setColumns(initialColumns);
         table.setPageSize(10);
         table.setMaxPage(rows.totalPages);
-        table.setPage(1);
-        table.setData(rows.data);
 
         setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows });
       });

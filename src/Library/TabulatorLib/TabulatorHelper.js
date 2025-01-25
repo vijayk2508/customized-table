@@ -398,8 +398,17 @@ export const setFormattedCol = (
   setColumns,
   setRows
 ) => {
-  return {
-    ...column,
+  const currColumn = JSON.parse(JSON.stringify(column));
+  // delete currColumn.id;
+  // delete currColumn.orderIndex;
+  delete currColumn.tableId;
+  delete currColumn.align;
+  delete currColumn.sortable;
+  delete currColumn.movable;
+
+  const options = {
+    ...currColumn,
+    visible: true,
     headerFilter: true, // add header filter to every column
     headerSort: true,
     editableTitle: false,
@@ -409,8 +418,14 @@ export const setFormattedCol = (
     },
     contextMenu: cellContextMenu,
     headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
-    formatter : Formatter?.[column?.formatter], 
+    formatter: Formatter?.[column?.formatter],
   };
+
+  if (Formatter?.[column?.formatter]) {
+    options.formatter = Formatter?.[column?.formatter];
+  }
+
+  return options;
 };
 
 export const getColumnMapping = (instanceRef) => {

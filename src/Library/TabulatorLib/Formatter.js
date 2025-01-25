@@ -12,7 +12,7 @@ const lineFormatter = function (cell) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  const chart = new Chart(ctx, {
+  new Chart(ctx, {
     type: "line",
     data: {
       labels: data.map((_, index) => index),
@@ -40,10 +40,6 @@ const lineFormatter = function (cell) {
     },
   });
 
-  cell.getElement().addEventListener("DOMNodeRemovedFromDocument", () => {
-    chart.destroy();
-  });
-
   canvas.style.height = "40px";
   canvas.style.width = "100%";
 
@@ -57,7 +53,7 @@ const barFormatter = function (cell) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  const chart = new Chart(ctx, {
+  new Chart(ctx, {
     type: "bar",
     data: {
       labels: data.map((_, index) => index),
@@ -84,10 +80,6 @@ const barFormatter = function (cell) {
     },
   });
 
-  cell.getElement().addEventListener("DOMNodeRemovedFromDocument", () => {
-    chart.destroy();
-  });
-
   canvas.style.height = "40px";
   canvas.style.width = "100%";
 
@@ -101,7 +93,7 @@ const tristateFormatter = function (cell) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  const chart = new Chart(ctx, {
+  new Chart(ctx, {
     type: "bar",
     data: {
       labels: data.map((_, index) => index),
@@ -132,10 +124,6 @@ const tristateFormatter = function (cell) {
     },
   });
 
-  cell.getElement().addEventListener("DOMNodeRemovedFromDocument", () => {
-    chart.destroy();
-  });
-
   canvas.style.height = "40px";
   canvas.style.width = "100%";
 
@@ -149,7 +137,7 @@ const boxFormatter = function (cell) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  const chart = new Chart(ctx, {
+  new Chart(ctx, {
     type: "boxplot", // Requires `chartjs-chart-box-and-violin-plot` package
     data: {
       labels: ["Box"],
@@ -176,21 +164,32 @@ const boxFormatter = function (cell) {
     },
   });
 
-  cell.getElement().addEventListener("DOMNodeRemovedFromDocument", () => {
-    chart.destroy();
-  });
-
   canvas.style.height = "40px";
   canvas.style.width = "100%";
 
   return canvas;
 };
 
+function progress(){
+  return "progress"
+}
+
+function star(){
+  return "star"
+}
+
+function tickCross(){
+  return "tickCross"
+}
+
 const Formatter = {
   lineFormatter,
   barFormatter,
   tristateFormatter,
   boxFormatter,
+  progress : progress(),
+  star : star(),
+  tickCross : tickCross()
 };
 
 export default Formatter;
