@@ -1,5 +1,6 @@
 import { axiosInstance } from "../../services";
 import { deleteColumn } from "../../services/tableService";
+import Formatter from "./Formatter";
 
 export const rowContextMenu = [
   {
@@ -408,6 +409,7 @@ export const setFormattedCol = (
     },
     contextMenu: cellContextMenu,
     headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
+    formatter : Formatter?.[column?.formatter], 
   };
 };
 

@@ -34,6 +34,7 @@ const useTabulatorTable = (columnData) => {
         ajaxURL: "https://customized-table-backend.vercel.app/rows",
         data: [],
         columns: [],
+        
         layout: "fitDataStretch",
         movableColumns: true,
         //Pagination
@@ -95,6 +96,8 @@ const useTabulatorTable = (columnData) => {
             last_page: 10,
           };
         },
+        columnHeaderVertAlign :"middle",
+        columnHeaderSortMulti : true
       });
 
       table.on("tableBuilt", () => {
