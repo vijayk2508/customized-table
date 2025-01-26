@@ -35,6 +35,7 @@ jobs:
         
         # Update homepage property in package.json
         jq '.homepage = env.CUSTOM_HOMEPAGE_URL' package.json > package.tmp.json && mv package.tmp.json package.json
+        cat package.json
         
         # Output updated homepage for debugging (optional)
         echo "Updated homepage to ${CUSTOM_HOMEPAGE_URL}"

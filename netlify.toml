@@ -1,3 +1,6 @@
+[context.production.environment]
+  REACT_APP_BASEPATH = "/"
+
 [build]
   functions = "netlify/functions"
 
