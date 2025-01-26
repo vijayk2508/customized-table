@@ -9,18 +9,19 @@ You can view the live demo of the project at the following URL:
 
 ## Features
 
-- Column Group  ✅
-- Row Group     ✅
-- Pagination
-- Sorting
-- Filtering
-- Add row
-- Delete row
-- Edit row
-- Add column
-- Delete column
-- Edit column
-
+| Feature         | Status |
+|-----------------|--------|
+| Column Group    | ✅     |
+| Row Group       | ✅     |
+| Pagination      | ✅     |
+| Sorting         | ✅     |
+| Filtering       | ✅     |
+| Add row         | ✅     |
+| Delete row      | ✅     |
+| Edit row        | ✅     |
+| Add column      | ✅     |
+| Delete column   | ✅     |
+| Edit column     | ✅     |
 
 ## Installation
 
@@ -28,9 +29,6 @@ To install the project dependencies, run:
 
 ```sh
 npm install
-
-
-https://stackoverflow.com/questions/68733789/tabulator-update-one-cell-using-data-from-another-in-the-row
 ```
 
 ## Create a Netlify Function
@@ -69,7 +67,6 @@ netlify functions:build --src path/to/your/functions
 netlify functions:build --src netlify/functions
 ```
 
-
 ### Description
 
 This command compiles all the functions located in the directory specified in your `netlify.toml` file (usually `netlify/functions/`). Make sure to run this command from the root of your project where the `netlify.toml` file is located.
@@ -96,6 +93,10 @@ netlify deploy
 
 This will give you a preview link for your changes.
 
+## Running Locally
 
-Add this is react app package.json if u want to run it locally
-json-server": "json-server --watch ./data/table.json --port 3030",
+To run the project locally, add the following script to your `package.json`:
+
+```json
+"json-server": "json-server --watch ./data/table.json --port 3030"
+```
