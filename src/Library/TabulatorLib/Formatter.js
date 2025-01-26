@@ -7,7 +7,7 @@ Chart.register(...registerables, BoxPlotController, BoxAndWiskers);
 // Helper function to initialize the chart
 const initializeChart = (canvas, chartConfig) => {
   const ctx = canvas.getContext("2d");
-  new Chart(ctx, chartConfig);
+  return new Chart(ctx, chartConfig);
 };
 
 // Lazy load chart using Intersection Observer

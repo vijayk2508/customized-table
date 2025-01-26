@@ -1,9 +1,10 @@
+import PropTypes from "prop-types"
 import React from "react";
 import { useLocation } from "react-router";
 
 const links = [
   { path: "/", label: "Tabultor Table" },
-  // { path: "/grid-js", label: "Grid Js" },
+  { path: "/gridjs", label: "Grid Js" },
 //  { path: "/pricing", label: "Pricing" },
 ];
 function Layout({ children }) {
@@ -51,6 +52,10 @@ function Layout({ children }) {
       <div className="container mt-4">{children}</div>
     </>
   );
+}
+
+Layout.propTypes = {
+  children: PropTypes.any
 }
 
 export default Layout;

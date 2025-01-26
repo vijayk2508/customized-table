@@ -176,8 +176,8 @@ const getHideColumnSubMenu = (instanceRef) => {
   const table = instanceRef?.current;
 
   const menu = [];
-  const columns = table.getColumns();
-
+  const columns = table?.getColumns?.();
+  if (!columns) return;
   for (let column of columns) {
     if (column.getDefinition().id === 0) continue;
     //create checkbox element
@@ -221,12 +221,7 @@ const getHideColumnSubMenu = (instanceRef) => {
 };
 
 //define row context menu
-export const headerMenu = ({
-  instanceRef,
-  editingColumn,
-  setColumns,
-  setRows,
-}) => [
+export const headerMenu = ({ instanceRef, editingColumn }) => [
   {
     label: "Add Column Right Side",
     action: (e, column) =>
@@ -235,8 +230,6 @@ export const headerMenu = ({
         editingColumn,
         instanceRef,
         left: false,
-        setColumns,
-        setRows,
       }),
   },
   {
@@ -247,8 +240,6 @@ export const headerMenu = ({
         editingColumn,
         instanceRef,
         left: true,
-        setColumns,
-        setRows,
       }),
   },
   {
@@ -256,7 +247,7 @@ export const headerMenu = ({
     action: async function (e, column) {
       column.delete();
       await deleteColumn(column.getDefinition().id);
-      setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows }); // Update the header menu
+      setColHeaderMenu({ instanceRef, editingColumn }); // Update the header menu
     },
   },
   {
@@ -275,7 +266,7 @@ export const headerMenu = ({
     label: "Hide Column",
     action: function (e, column) {
       column.hide();
-      setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows }); // Update the header menu
+      setColHeaderMenu({ instanceRef, editingColumn }); // Update the header menu
     },
   },
 ];
@@ -362,13 +353,7 @@ export const setHeaderNonEditable = async function (
   }
 };
 
-export const setFormattedCol = (
-  column,
-  editingColumn,
-  instanceRef,
-  setColumns,
-  setRows
-) => {
+export const setFormattedCol = (column, editingColumn, instanceRef) => {
   const currColumn = JSON.parse(JSON.stringify(column));
   const options = {
     ...currColumn,
@@ -376,14 +361,14 @@ export const setFormattedCol = (
     headerSort: false,
     editableTitle: false,
     contextMenu: cellContextMenu,
-    headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
+    headerMenu: headerMenu({ instanceRef, editingColumn }),
     clipboard: true,
   };
 
   if (currColumn?.editor) {
     options.headerDblClick = (e, column) => {
       editingColumn.current = column;
-      updateCol(e, { column, instanceRef, setColumns, setRows });
+      updateCol(e, { column, instanceRef });
     };
   }
 
@@ -422,9 +407,9 @@ export const setFormattedCol = (
     options.visible = false;
   }
 
-  if (Formatter?.[column?.formatter]) {
-    //options.formatter = Formatter?.[column?.formatter];
-  }
+  // if (Formatter?.[column?.formatter]) {
+  //   options.formatter = Formatter?.[column?.formatter];
+  // }
 
   if (["age"].includes(String(currColumn?.field)?.toLowerCase())) {
     // Additional logic for specific fields
@@ -511,36 +496,29 @@ export const ajaxResponse = (_url, _params, response, columns) => {
   };
 };
 
-export const tableCallbacks = ({
-  table,
-  instanceRef,
-  columns,
-  editingColumn,
-  setColumns,
-  setRows = () => {},
-}) => {
+export const tableCallbacks = ({ table, instanceRef, editingColumn }) => {
   table.on("tableBuilt", () => {
     instanceRef.current = table;
 
-    const initialColumns = [...columns].map((column) =>
-      setFormattedCol(column, editingColumn, instanceRef, setColumns, setRows)
-    );
+    // const initialColumns = [...columns].map((column) =>
+    //   setFormattedCol(column, editingColumn, instanceRef, setColumns, setRows)
+    // );
 
-    initialColumns.unshift(zerothCol(instanceRef));
+    // initialColumns.unshift(zerothCol(instanceRef));
 
-    table.setColumns(initialColumns);
+    //table.setColumns(initialColumns);
     table.setPageSize(10);
 
-    setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows });
+    //setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows });
   });
 
   table.on("rowSelectionChanged", function () {
     console.log(arguments);
   });
 
-  table.on("cellEdited", (cell) => {
-    cellEdited(cell);
-  });
+  // table.on("cellEdited", (cell) => {
+  //   cellEdited(cell);
+  // });
 
   table.on("rowClick", async (cell) => {
     await setHeaderNonEditable(editingColumn, instanceRef);

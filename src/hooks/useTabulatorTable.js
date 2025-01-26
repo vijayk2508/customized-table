@@ -4,7 +4,9 @@ import "tabulator-tables/dist/css/tabulator.min.css";
 import {
   ajaxResponse,
   ajaxURLGenerator,
+  setFormattedCol,
   tableCallbacks,
+  zerothCol,
 } from "../Library/TabulatorLib/TabulatorHelper";
 
 const useTabulatorTable = (columnData) => {
@@ -24,10 +26,16 @@ const useTabulatorTable = (columnData) => {
     if (!instanceRef.current && tableContainerRef.current) {
       const domEle = tableContainerRef.current;
 
+      const initialColumns = [...columns].map((column) =>
+        setFormattedCol(column, editingColumn, instanceRef)
+      );
+
+      initialColumns.unshift(zerothCol(instanceRef));
+
       const table = new Tabulator(domEle, {
         ajaxURL: "https://customized-table-backend.vercel.app/rows",
         data: [],
-        columns: [],
+        columns: initialColumns,
 
         editTriggerEvent: "dblclick",
 
