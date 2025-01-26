@@ -14,62 +14,62 @@ jobs:
       CUSTOM_BASEPATH: /customized-table
 
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # Step 2: Set up Node.js
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18 # Adjust this to the version your project requires
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Adjust this to the version your project requires
 
-    # Step 3: Install dependencies
-    - name: Install dependencies
-      run: npm install --legacy-peer-deps
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
 
-    # Step 4: Update `homepage` in package.json, create `.env`, and inject variables into `index.html`
-    - name: Update `homepage`, create `.env`, and inject variables
-      run: |
-        echo "Updating homepage in package.json"
-        
-        # Update homepage property in package.json
-        jq '.homepage = env.CUSTOM_HOMEPAGE_URL' package.json > package.tmp.json && mv package.tmp.json package.json
-        cat package.json
-        
-        # Output updated homepage for debugging (optional)
-        echo "Updated homepage to ${CUSTOM_HOMEPAGE_URL}"
-        cat package.json
-        
-        # Create `.env` file for React app
-        echo "Creating .env file"
-        echo "REACT_APP_HOMEPAGE_URL=${CUSTOM_HOMEPAGE_URL}" > .env
-        echo "REACT_APP_BASEPATH=${CUSTOM_BASEPATH}" >> .env
-        
-        # Output .env for debugging (optional)
-        echo ".env file content:"
-        cat .env
-        
-        # Inject environment variables into `public/index.html`
-        echo "Injecting environment variables into index.html"
-        sed -i "s|__CUSTOM_HOMEPAGE_URL__|${CUSTOM_HOMEPAGE_URL}|g" public/index.html
-        sed -i "s|__CUSTOM_BASEPATH__|${CUSTOM_BASEPATH}|g" public/index.html
-        
-        # Output updated `index.html` for debugging (optional)
-        echo "Updated index.html:"
-        cat public/index.html
-        
-        # Export env variables for future steps
-        echo "HOMEPAGE_URL=${CUSTOM_HOMEPAGE_URL}" >> $GITHUB_ENV
-      shell: bash
+      # Step 4: Update `homepage` in package.json, create `.env`, and inject variables into `index.html`
+      - name: Update `homepage`, create `.env`, and inject variables
+        run: |
+          echo "Updating homepage in package.json"
 
-    # Step 5: Build the project
-    - name: Build the project
-      run: npm run build
+          # Update homepage property in package.json
+          jq '.homepage = env.CUSTOM_HOMEPAGE_URL' package.json > package.tmp.json && mv package.tmp.json package.json
+          cat package.json
 
-    # Step 6: Deploy to GitHub Pages
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./ # Ensure this matches your build output directory
+          # Output updated homepage for debugging (optional)
+          echo "Updated homepage to ${CUSTOM_HOMEPAGE_URL}"
+          cat package.json
+
+          # Create `.env` file for React app
+          echo "Creating .env file"
+          echo "REACT_APP_HOMEPAGE_URL=${CUSTOM_HOMEPAGE_URL}" > .env
+          echo "REACT_APP_BASEPATH=${CUSTOM_BASEPATH}" >> .env
+
+          # Output .env for debugging (optional)
+          echo ".env file content:"
+          cat .env
+
+          # Inject environment variables into `public/index.html`
+          echo "Injecting environment variables into index.html"
+          sed -i "s|__CUSTOM_HOMEPAGE_URL__|${CUSTOM_HOMEPAGE_URL}|g" public/index.html
+          sed -i "s|__CUSTOM_BASEPATH__|${CUSTOM_BASEPATH}|g" public/index.html
+
+          # Output updated `index.html` for debugging (optional)
+          echo "Updated index.html:"
+          cat public/index.html
+
+          # Export env variables for future steps
+          echo "HOMEPAGE_URL=${CUSTOM_HOMEPAGE_URL}" >> $GITHUB_ENV
+        shell: bash
+
+      # Step 5: Build the project
+      - name: Build the project
+        run: npm run build
+
+      # Step 6: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build # Ensure this matches your build output directory
