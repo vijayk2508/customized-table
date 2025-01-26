@@ -19,10 +19,8 @@
   background-color: #f0f0f0;
 }
 
-
 .highlight-border {
   border: 2px solid black; /* Green border to indicate copy */
   border-radius: 4px; /* Optional: Rounded corners */
   box-shadow: 0 0 8px black; /* Optional: Glow effect */
 }
-
