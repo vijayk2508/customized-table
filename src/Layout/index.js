@@ -4,9 +4,11 @@ import { useLocation } from "react-router";
 
 const baseURL = window.BASEPATH?.includes("customized-table")
   ? "/customized-table"
-  : "/";
+  : "https://react-customized-table.netlify.app";
 
 function getURL(url) {
+  if (window.location.hostname === "localhost")
+    return window.location.href.split("/").slice(0, -1).join("/") + url;
   return baseURL ? baseURL + url : url;
 }
 
