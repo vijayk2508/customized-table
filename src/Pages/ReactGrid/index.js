@@ -1,8 +1,8 @@
 import React from "react";
 import Layout from "../../Layout";
 
-function GridJs() {
+function ReactGrid() {
   return <Layout>Grid Js</Layout>;
 }
 
-export default GridJs;
+export default ReactGrid;
