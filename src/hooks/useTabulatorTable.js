@@ -37,6 +37,10 @@ const useTabulatorTable = (columnData) => {
         data: [],
         columns: initialColumns,
 
+        printAsHtml: true,
+        printHeader: "<h1>Example Table Header<h1>",
+        printFooter: "<h2>Example Table Footer<h2>",
+
         editTriggerEvent: "dblclick",
 
         height: "431px",
@@ -115,8 +119,26 @@ const useTabulatorTable = (columnData) => {
     }
   }, [columns, editingColumn]);
 
+  const handleDownload = (format, fileName, options = {}) => {
+    try {
+      const table = Tabulator.findTable(tableContainerRef.current)[0];
+      if (table) {
+        table.download(format, fileName, options);
+      }
+    } catch (error) {}
+  };
+
+  const handlePrint = (e) => {
+    e.preventDefault();
+    if (instanceRef.current) {
+      instanceRef.current.print(false, true);
+    }
+  };
+
   return {
     tableContainerRef,
+    handleDownload,
+    handlePrint,
   };
 };
 
