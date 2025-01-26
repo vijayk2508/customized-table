@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import { useLocation } from "react-router";
 
-const baseURL = process.env.REACT_APP_HOMEPAGE_URL.includes("customized-table") ? "/customized-table" : ""
+const baseURL = process?.env?.REACT_APP_HOMEPAGE_URL?.includes("customized-table") ? "/customized-table" : ""
 
 function getURL(url){
   return baseURL ? baseURL +url : url
