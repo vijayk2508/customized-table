@@ -1,5 +1,5 @@
-// import { axiosInstance } from "../../services";
-import { deleteColumn } from "../../services/tableService";
+import { deleteColumn, getTransformData } from "../../services/tableService";
+import { cellContextMenu } from "./cellContextMenu";
 import Formatter from "./Formatter";
 
 export const rowContextMenu = [
@@ -38,6 +38,8 @@ const handleAddColumn = ({
   left = false,
 }) => {
   try {
+    document.dispatchEvent(new MouseEvent("click"));
+
     const columns = instanceRef.current.getColumns();
     const colIndex = columns.findIndex(
       (col) => col.getField() === column.getField()
@@ -58,10 +60,10 @@ const handleAddColumn = ({
       left,
       columns[colIndex]?.getField() || null
     );
-
-    instanceRef.current.restoreRedraw(true);
   } catch (error) {
     console.error("Error adding new column:", error);
+  } finally {
+    instanceRef.current.redraw(true);
   }
 };
 
@@ -278,15 +280,6 @@ export const headerMenu = ({
   },
 ];
 
-export const cellContextMenu = [
-  {
-    label: "Reset Value",
-    action: function (e, cell) {
-      cell.setValue("");
-    },
-  },
-];
-
 export const updateCol = async function (
   _e,
   { column, instanceRef, editableTitle = true }
@@ -377,20 +370,14 @@ export const setFormattedCol = (
   setRows
 ) => {
   const currColumn = JSON.parse(JSON.stringify(column));
-  // delete currColumn.id;
-  // delete currColumn.orderIndex;
-  // delete currColumn.tableId;
-  // delete currColumn.align;
-  // delete currColumn.sortable;
-  // delete currColumn.movable;
-
   const options = {
     ...currColumn,
-    headerSort: true,
+    editable: true,
+    headerSort: false,
     editableTitle: false,
-    //contextMenu: cellContextMenu,
-    //headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
-    formatter: Formatter?.[column?.formatter],
+    contextMenu: cellContextMenu,
+    headerMenu: headerMenu({ instanceRef, editingColumn, setColumns, setRows }),
+    clipboard: true,
   };
 
   if (currColumn?.editor) {
@@ -416,27 +403,37 @@ export const setFormattedCol = (
 
   if (
     [
-      "age",
-      "email",
-      "phone",
-      "address",
-      "city",
-      "country",
-      "occupation",
-      "rating",
-      "dob",
+      // "age",
+      // "email",
+      // "phone",
+      // "address",
+      // "city",
+      // "country",
+      // "occupation",
+      // "rating",
+      // "dob",
       //"line",
-      "col",
-      "bar",
-      "tristate",
-      "box",
+      // "col",
+      // "bar",
+      // "tristate",
+      // "box",
     ].includes(String(currColumn?.field)?.toLowerCase())
   ) {
     options.visible = false;
   }
 
   if (Formatter?.[column?.formatter]) {
-    options.formatter = Formatter?.[column?.formatter];
+    //options.formatter = Formatter?.[column?.formatter];
+  }
+
+  if (["age"].includes(String(currColumn?.field)?.toLowerCase())) {
+    // Additional logic for specific fields
+    options.formatter = (cell) => {
+      const cellElement = cell.getElement();
+      cellElement.style.textAlign = "center";
+      cellElement.style.color = "red";
+      return cell.getValue();
+    };
   }
 
   return options;
@@ -451,4 +448,105 @@ export const getColumnMapping = (instanceRef) => {
   }, {});
 
   return columnMapping;
+};
+
+export const ajaxURLGenerator = (url, _config, params, instanceRef) => {
+  console.log(params);
+
+  const columnMap = getColumnMapping(instanceRef);
+
+  // Generate the filter query
+  const filterQuery =
+    params?.filter
+      ?.map(
+        (filter) =>
+          `field.${columnMap[filter.field]}.value_like=${filter.value}`
+      )
+      ?.join("&") || "";
+
+  // Generate the sort query and order
+  const sortQuery =
+    params?.sort?.length > 0
+      ? params.sort
+          .map((sort) => `field.${columnMap[sort.field]}.value`)
+          .join(",")
+      : "id"; // Default sort by 'id'
+
+  const sortOrder =
+    params?.sort?.length > 0
+      ? params.sort.map((sort) => `${sort.direction || "asc"}`).join(",")
+      : "asc"; // Default order 'asc'
+
+  // Construct the base query URL
+  let queryURL = `${url}?_page=${params.page}&_limit=${params.size}`;
+
+  // Append the filter query
+  if (filterQuery) {
+    queryURL += `&${filterQuery}`;
+  }
+
+  // Append the sort query
+  queryURL += `&_sort=${sortQuery}&_order=${sortOrder}`;
+
+  console.log(queryURL);
+
+  return queryURL;
+};
+
+export const ajaxResponse = (_url, _params, response, columns) => {
+  const data = getTransformData({
+    columns: columns,
+    rows: response,
+  });
+
+  const rows =
+    data.rows?.map?.(({ tableId, ...rest }, idx) => ({
+      ...rest,
+      index: idx + 1,
+    })) || [];
+
+  return {
+    data: rows,
+    last_page: 30,
+  };
+};
+
+export const tableCallbacks = ({
+  table,
+  instanceRef,
+  columns,
+  editingColumn,
+  setColumns,
+  setRows = () => {},
+}) => {
+  table.on("tableBuilt", () => {
+    instanceRef.current = table;
+
+    const initialColumns = [...columns].map((column) =>
+      setFormattedCol(column, editingColumn, instanceRef, setColumns, setRows)
+    );
+
+    initialColumns.unshift(zerothCol(instanceRef));
+
+    table.setColumns(initialColumns);
+    table.setPageSize(10);
+
+    setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows });
+  });
+
+  table.on("rowSelectionChanged", function () {
+    console.log(arguments);
+  });
+
+  table.on("cellEdited", (cell) => {
+    cellEdited(cell);
+  });
+
+  table.on("rowClick", async (cell) => {
+    await setHeaderNonEditable(editingColumn, instanceRef);
+  });
+
+  table.on("headerClick", async (cell) => {
+    await setHeaderNonEditable(editingColumn, instanceRef);
+  });
 };

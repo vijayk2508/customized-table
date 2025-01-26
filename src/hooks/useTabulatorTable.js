@@ -2,21 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
 import {
-  cellEdited,
-  getColumnMapping,
-  rowContextMenu,
-  setColHeaderMenu,
-  setFormattedCol,
-  setHeaderNonEditable,
-  updateCol,
-  zerothCol,
+  ajaxResponse,
+  ajaxURLGenerator,
+  tableCallbacks,
 } from "../Library/TabulatorLib/TabulatorHelper";
-import { getTransformData } from "../services/tableService";
 
 const useTabulatorTable = (columnData) => {
   const tableContainerRef = useRef();
   const [columns, setColumns] = useState([]);
-  const [rows, setRows] = useState([]);
   const editingColumn = useRef(null);
   const instanceRef = useRef();
   console.log(instanceRef);
@@ -35,6 +28,27 @@ const useTabulatorTable = (columnData) => {
         ajaxURL: "https://customized-table-backend.vercel.app/rows",
         data: [],
         columns: [],
+
+        editTriggerEvent: "dblclick",
+
+        height: "431px",
+
+        selectableRange: 1,
+        selectableRangeColumns: true,
+        selectableRangeRows: true,
+        selectableRangeClearCells: true,
+
+        clipboard: true,
+        clipboardCopyStyled: true,
+        columnDefaults: {
+          headerSort: false,
+          resizable: "header",
+        },
+        clipboardCopyRowRange: "range",
+        clipboardPasteParser: "range",
+        clipboardPasteAction: "range",
+
+        persistenceMode: "local",
 
         //layout
         renderHorizontal: "virtual",
@@ -71,134 +85,27 @@ const useTabulatorTable = (columnData) => {
 
         placeholder: "No Data Available",
         placeholderHeaderFilter: "No Matching Data",
-
-        rowContextMenu: rowContextMenu,
         autoColumns: false,
         history: true,
 
-        ajaxURLGenerator: (url, _config, params) => {
-          console.log(params);
-
-          const columnMap = getColumnMapping(instanceRef);
-
-          // Generate the filter query
-          const filterQuery =
-            params?.filter
-              ?.map(
-                (filter) =>
-                  `field.${columnMap[filter.field]}.value_like=${filter.value}`
-              )
-              ?.join("&") || "";
-
-          // Generate the sort query and order
-          const sortQuery =
-            params?.sort?.length > 0
-              ? params.sort
-                  .map((sort) => `field.${columnMap[sort.field]}.value`)
-                  .join(",")
-              : "id"; // Default sort by 'id'
-
-          const sortOrder =
-            params?.sort?.length > 0
-              ? params.sort
-                  .map((sort) => `${sort.direction || "asc"}`)
-                  .join(",")
-              : "asc"; // Default order 'asc'
-
-          // Construct the base query URL
-          let queryURL = `${url}?_page=${params.page}&_limit=${params.size}`;
-
-          // Append the filter query
-          if (filterQuery) {
-            queryURL += `&${filterQuery}`;
-          }
-
-          // Append the sort query
-          queryURL += `&_sort=${sortQuery}&_order=${sortOrder}`;
-
-          console.log(queryURL);
-
-          return queryURL;
-        },
-
-        ajaxResponse: (_url, _params, response) => {
-          const data = getTransformData({
-            columns: columns,
-            rows: response,
-          });
-
-          const rows =
-            data.rows?.map?.(({ tableId, ...rest }, idx) => ({
-              ...rest,
-              index: idx + 1,
-            })) || [];
-
-          return {
-            data: rows,
-            last_page: 10,
-          };
-        },
         columnHeaderVertAlign: "middle",
         columnHeaderSortMulti: true,
+
+        ajaxURLGenerator: (url, _config, params) =>
+          ajaxURLGenerator(url, _config, params, instanceRef),
+        ajaxResponse: (_url, _params, response) =>
+          ajaxResponse(_url, _params, response, columns),
       });
 
-      table.on("tableBuilt", () => {
-        instanceRef.current = table;
-
-        const initialColumns = [...columns].map((column) =>
-          setFormattedCol(
-            column,
-            editingColumn,
-            instanceRef,
-            setColumns,
-            setRows
-          )
-        );
-       
-        initialColumns.unshift(zerothCol(instanceRef));
-
-        table.setColumns(initialColumns);
-        table.setPageSize(10);
-        table.setMaxPage(rows.totalPages);
-
-        setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows });
-      });
-
-      table.on("rowSelectionChanged", function () {
-        console.log(arguments);
-      });
-
-      table.on("columnTitleChanged", (col) =>
-        updateCol(null, col, instanceRef, false)
-      );
-
-      table.on("cellEdited", (cell) => {
-        cellEdited(cell);
-      });
-
-      table.on("cellDblClick", (e, cell) => {
-        if (cell.getColumn().getDefinition().editor) {
-          cell?.edit?.(true);
-        }
-      });
-
-      table.on("cellEditCancelled", (cell) => {
-        cell?.getElement?.()?.blur?.();
-      });
-
-      table.on("cellEdited", (cell) => {
-        cell?.getElement?.()?.blur?.();
-      });
-
-      table.on("rowClick", async (cell) => {
-        await setHeaderNonEditable(editingColumn, instanceRef);
-      });
-
-      table.on("headerClick", async (cell) => {
-        await setHeaderNonEditable(editingColumn, instanceRef);
+      tableCallbacks({
+        table,
+        instanceRef,
+        columns,
+        editingColumn,
+        setColumns,
       });
     }
-  }, [columns, editingColumn, rows]);
+  }, [columns, editingColumn]);
 
   return {
     tableContainerRef,

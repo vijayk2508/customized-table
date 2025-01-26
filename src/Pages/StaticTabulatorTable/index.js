@@ -1,6 +1,7 @@
 import React from "react";
 import useTabulatorTable from "../../hooks/useTabulatorTable";
 import useMockGetTableData from "../../hooks/useMockGetTableData";
+import Layout from "../../Layout";
 
 function StaticTabulatorTable() {
   const { columnData, loading, error } = useMockGetTableData();
@@ -20,9 +21,11 @@ function StaticTabulatorTable() {
   }
 
   return (
-    <div style={{ margin: 30 }}>
-      <div ref={tableContainerRef} />
-    </div>
+    <Layout>
+      <div style={{ margin: 30 }}>
+        <div ref={tableContainerRef} />
+      </div>
+    </Layout>
   );
 }
 
