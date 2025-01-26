@@ -355,7 +355,7 @@ export const setHeaderNonEditable = async function (
 
 export const setFormattedCol = (column, editingColumn, instanceRef) => {
   const currColumn = JSON.parse(JSON.stringify(column));
-  const options = {
+  let options = {
     ...currColumn,
     editable: true,
     headerSort: false,
@@ -388,17 +388,17 @@ export const setFormattedCol = (column, editingColumn, instanceRef) => {
 
   if (
     [
-      // "age",
-      // "email",
-      // "phone",
-      // "address",
-      // "city",
-      // "country",
-      // "occupation",
-      // "rating",
-      // "dob",
+      //"age",
+      //"email",
+      //"phone",
+      "address",
+      "city",
+      "country",
+      "occupation",
+      "rating",
+      "dob",
       //"line",
-      // "col",
+      //"col",
       // "bar",
       // "tristate",
       // "box",
@@ -407,9 +407,9 @@ export const setFormattedCol = (column, editingColumn, instanceRef) => {
     options.visible = false;
   }
 
-  // if (Formatter?.[column?.formatter]) {
-  //   options.formatter = Formatter?.[column?.formatter];
-  // }
+  if (Formatter?.[column?.formatter]) {
+    options.formatter = Formatter?.[column?.formatter];
+  }
 
   if (["age"].includes(String(currColumn?.field)?.toLowerCase())) {
     // Additional logic for specific fields
@@ -418,6 +418,35 @@ export const setFormattedCol = (column, editingColumn, instanceRef) => {
       cellElement.style.textAlign = "center";
       cellElement.style.color = "red";
       return cell.getValue();
+    };
+  }
+
+  if (["id"].includes(String(currColumn?.field)?.toLowerCase())) {
+    options = {
+      ...options,
+      headerFilter: "list",
+      headerFilterParams: {
+        values: [1, 2, 3, 100],
+        multiselect: true,
+      },
+    };
+  }
+
+  if (["tickCross"].includes(options.formatter)) {
+    options["formatter"] = function (cell) {
+      const cellElement = cell.getElement();
+      cellElement.style.textAlign = "center";
+      return cell.getValue()
+        ? "<input type='checkbox' checked />"
+        : "<input type='checkbox' />";
+    };
+    options["cellClick"] = function (e, cell) {
+      const value = cell.getValue();
+      cell.setValue(!value);
+    };
+    options["headerFilter"] = "tickCross";
+    options["headerFilterParams"] = {
+      tristate: false,
     };
   }
 

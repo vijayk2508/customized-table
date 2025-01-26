@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Layout from "../../Layout";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 import "tabulator-tables/dist/css/tabulator.min.css";
@@ -12,7 +12,7 @@ export const tabledata = [
     rating: 1,
     col: "red",
     dob: "19/02/1984",
-    car: 1,
+    car: true, 
     lucky_no: 5,
   },
   {
@@ -23,7 +23,7 @@ export const tabledata = [
     rating: 2,
     col: "blue",
     dob: "14/05/1982",
-    car: true,
+    car: true, 
     lucky_no: 10,
   },
   {
@@ -34,7 +34,7 @@ export const tabledata = [
     rating: 0,
     col: "green",
     dob: "22/05/1982",
-    car: "true",
+    car: true, 
     lucky_no: 12,
   },
   {
@@ -65,7 +65,7 @@ export const tabledata = [
     rating: 4,
     col: "red",
     dob: "12/05/1966",
-    car: 1,
+    car: true, 
     lucky_no: 2,
   },
   {
@@ -76,7 +76,7 @@ export const tabledata = [
     rating: 3,
     col: "green",
     dob: "14/05/1985",
-    car: true,
+    car: true, 
     lucky_no: 63,
   },
   {
@@ -87,7 +87,7 @@ export const tabledata = [
     rating: 0,
     col: "red",
     dob: "22/05/1982",
-    car: "true",
+    car: true, 
     lucky_no: 72,
   },
   {
@@ -127,7 +127,7 @@ export const tabledata = [
     rating: 4,
     col: "indigo",
     dob: "12/11/1998",
-    car: true,
+    car: true, 
   },
   {
     id: 13,
@@ -137,7 +137,7 @@ export const tabledata = [
     rating: 3,
     col: "blue",
     dob: "07/08/1972",
-    car: true,
+    car: true, 
   },
   {
     id: 14,
@@ -147,7 +147,7 @@ export const tabledata = [
     rating: 1,
     col: "green",
     dob: "24/09/1950",
-    car: true,
+    car: true, 
   },
   {
     id: 15,
@@ -175,7 +175,7 @@ export const tabledata = [
     rating: 4,
     col: "brown",
     dob: "07/10/1963",
-    car: true,
+    car: true, 
   },
   {
     id: 19,
@@ -185,6 +185,7 @@ export const tabledata = [
     rating: 1,
     col: "pink",
     dob: "11/02/1991",
+    car: false, 
   },
   {
     id: 20,
@@ -194,13 +195,16 @@ export const tabledata = [
     rating: 2,
     col: "purple",
     dob: "22/03/1986",
+    car: false, 
   },
 ];
 
 function GridJs() {
+  const tableRef = useRef(null);
+
   useEffect(() => {
     // Initialize Tabulator when the component is mounted
-    new Tabulator("#example-table", {
+    tableRef.current = new Tabulator("#example-table", {
       editTriggerEvent: "dblclick",
       layout: "fitColumns",
       tooltips: true,
@@ -249,13 +253,24 @@ function GridJs() {
           field: "car",
           width: 100,
           align: "center",
-          formatter: "tickCross",
-          sorter: "boolean",
-          editor: true,
+          formatter: function (cell) {
+            return cell.getValue()
+              ? "<input type='checkbox' checked />"
+              : "<input type='checkbox' />";
+          },
+          cellClick: function (e, cell) {
+            const value = cell.getValue();
+            cell.setValue(!value);
+          },
+          headerFilter: "tickCross",
+          headerFilterParams: {
+            tristate: true,
+          },
         },
       ],
-
-      selectableRange: 1,
+      selectable: true,
+      selectableRangeMode: "click",
+      selectableRange: true,
       selectableRangeColumns: true,
       selectableRangeRows: true,
       selectableRangeClearCells: true,
