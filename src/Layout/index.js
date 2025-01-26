@@ -4,7 +4,7 @@ import { useLocation } from "react-router";
 
 const links = [
   { path: "/", label: "Tabultor Table" },
-  { path: "/gridjs", label: "Grid Js" },
+  { path: "/reactgrid", label: "Grid Js" },
   //  { path: "/pricing", label: "Pricing" },
 ];
 function Layout({ children }) {
