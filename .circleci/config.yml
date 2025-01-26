@@ -1,12 +1,13 @@
 version: 2.1
-
-commands:
-  install_dependencies:
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: cimg/node:18.16.0
     steps:
+      - checkout
       - restore_cache:
-          keys:
-            - dependency-cache-{{ checksum "package-lock.json" }}
-            - dependency-cache-
+          key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
           name: Install Dependencies
           command: npm install --legacy-peer-deps
@@ -14,9 +15,6 @@ commands:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-
-  build_react_app:
-    steps:
       - run:
           name: Build React App
           command: npm run build
@@ -24,29 +22,12 @@ commands:
           key: app-build-cache-{{ .Branch }}
           paths:
             - ./build
-
-  deploy_to_netlify:
-    steps:
       - run:
-          name: Install Netlify CLI
+          name: Install Netlify
           command: npm install netlify-cli --legacy-peer-deps --save-dev
       - run:
           name: Deploy to Netlify
           command: ./node_modules/.bin/netlify deploy --site $NETLIFY_SITE_ID --auth $NETLIFY_ACCESS_TOKEN --prod --dir=build
-
-jobs:
-  build:
-    working_directory: ~/repo
-    docker:
-      - image: cimg/node:18.16.0
-    environment:
-      REACT_APP_BASEPATH: /
-    steps:
-      - checkout
-      - install_dependencies
-      - build_react_app
-      - deploy_to_netlify
-
 workflows:
   build-deploy:
     jobs:
