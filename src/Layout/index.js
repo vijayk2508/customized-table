@@ -37,7 +37,7 @@ function Layout({ children }) {
                     className={`nav-link ${
                       location.pathname === link.path ? "active" : ""
                     }`}
-                    href={link.path}
+                    href={link?.path ?? "#"}
                   >
                     {link.label}
                   </a>
