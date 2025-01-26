@@ -2,10 +2,12 @@ import PropTypes from "prop-types";
 import React from "react";
 import { useLocation } from "react-router";
 
-const baseURL = window?.BASEPATH?.includes("customized-table") ? "/customized-table" : ""
+const baseURL = window?.BASEPATH?.includes("customized-table")
+  ? "/customized-table"
+  : "";
 
-function getURL(url){
-  return baseURL ? baseURL +url : url
+function getURL(url) {
+  return baseURL ? baseURL + url : url;
 }
 
 const links = [
