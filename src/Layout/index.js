@@ -2,10 +2,15 @@ import PropTypes from "prop-types";
 import React from "react";
 import { useLocation } from "react-router";
 
+const baseURL = process.env.REACT_APP_HOMEPAGE_URL.includes("customized-table") ? "/customized-table" : ""
+
+function getURL(url){
+  return baseURL ? baseURL +url : url
+}
+
 const links = [
-  { path: "/", label: "Tabultor Table" },
-  { path: "/reactgrid", label: "Grid Js" },
-  //  { path: "/pricing", label: "Pricing" },
+  { path: getURL("/"), label: "Tabultor Table" },
+  { path: getURL("/reactgrid"), label: "Grid Js" },
 ];
 function Layout({ children }) {
   const location = useLocation();
