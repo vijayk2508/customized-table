@@ -1,11 +1,11 @@
-import PropTypes from "prop-types"
+import PropTypes from "prop-types";
 import React from "react";
 import { useLocation } from "react-router";
 
 const links = [
   { path: "/", label: "Tabultor Table" },
   { path: "/gridjs", label: "Grid Js" },
-//  { path: "/pricing", label: "Pricing" },
+  //  { path: "/pricing", label: "Pricing" },
 ];
 function Layout({ children }) {
   const location = useLocation();
@@ -15,9 +15,9 @@ function Layout({ children }) {
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">
+          <button className="navbar-brand" type="button">
             Tables &gt;
-          </a>
+          </button>
           <button
             className="navbar-toggler"
             type="button"
@@ -55,7 +55,7 @@ function Layout({ children }) {
 }
 
 Layout.propTypes = {
-  children: PropTypes.any
-}
+  children: PropTypes.any,
+};
 
 export default Layout;
