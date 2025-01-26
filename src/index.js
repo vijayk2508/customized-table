@@ -9,7 +9,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter
-      basename={window.BASEPATH === "__CUSTOM_BASEPATH__" ? "/" : ""}
+      basename={window.BASEPATH === "__CUSTOM_BASEPATH__" ? "/" : window.BASEPATH}
     >
       <App />
     </BrowserRouter>
