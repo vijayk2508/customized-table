@@ -116,6 +116,7 @@ const useTabulatorTable = (columnData) => {
         editingColumn,
         setColumns,
       });
+
     }
   }, [columns, editingColumn]);
 

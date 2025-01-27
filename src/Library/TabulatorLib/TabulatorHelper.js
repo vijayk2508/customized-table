@@ -2,32 +2,23 @@ import { deleteColumn, getTransformData } from "../../services/tableService";
 import { cellContextMenu } from "./cellContextMenu";
 import FieldFormatter from "./fieldFormatter";
 
-export const rowContextMenu = [
+function addRow(cell, above = true) {
+  const id = cell.getTable().getRows().length;
+  const table = cell.getTable();
+  const newRow = { id: id + 1 };
+  const row = cell.getRow();
+  const rowIndex = row.getIndex();
+  table.addRow(newRow, above, rowIndex);
+}
+
+export const addRowMenu = [
   {
-    label: "Delete Row",
-    action: function (e, row) {
-      row.delete();
-    },
+    label: "Add 1 Row Above",
+    action: (_e, cell) => addRow(cell),
   },
   {
-    separator: true,
-  },
-  {
-    disabled: true,
-    label: "Add 1 row above",
-    action: function () {
-      console.log("Add 1 row above", arguments);
-    },
-  },
-  {
-    separator: true,
-  },
-  {
-    disabled: true,
-    label: "Add 1 row below",
-    action: function () {
-      console.log("Add 1 row below", arguments);
-    },
+    label: "Add 1 Row Below",
+    action: (_e, cell) => addRow(cell, false),
   },
 ];
 
@@ -120,33 +111,7 @@ export const zerothCol = (instanceRef, _editingColumn) => {
 
 export const zerothColContextMenu = function (instanceRef, _editingColumn) {
   const selectedRows = instanceRef.current.getSelectedRows();
-  const menu = [];
-  menu.push(
-    {
-      label: "Add Row Above",
-      action: function (_e, cell) {
-        const table = instanceRef.current; // Reference to the Tabulator table instance
-        const newRow = {}; // Define the structure of the new row (e.g., default values)
-        const row = cell.getRow(); // Get the selected row
-        const rowIndex = row.getIndex(); // Get the index of the selected row
-
-        // Add the new row above the selected row
-        table.addRow(newRow, true, rowIndex); // 'true' adds the row before the specified index
-      },
-    },
-    {
-      label: "Add Row Below",
-      action: function (_e, cell) {
-        const table = instanceRef.current; // Reference to the Tabulator table instance
-        const newRow = {}; // Define the structure of the new row (e.g., default values)
-        const row = cell.getRow(); // Get the selected row
-        const rowIndex = row.getIndex(); // Get the index of the selected row
-
-        // Add the new row below the selected row
-        table.addRow(newRow, false, rowIndex); // 'false' adds the row after the specified index
-      },
-    }
-  );
+  const menu = [...addRowMenu];
 
   menu.push(
     selectedRows.length > 1
@@ -534,15 +499,16 @@ export const tableCallbacks = ({ table, instanceRef, editingColumn }) => {
     setColHeaderMenu({ instanceRef, editingColumn });
   });
 
-  table.on("rowSelectionChanged", function () {
-    console.log(arguments);
-  });
-
-  table.on("rowClick", async (cell) => {
+  table.on("rowClick", async () => {
     await setHeaderNonEditable(editingColumn, instanceRef);
   });
 
-  table.on("headerClick", async (cell) => {
+  table.on("headerClick", async (_e, cell) => {
+    cell.getTable().deselectRow();
     await setHeaderNonEditable(editingColumn, instanceRef);
+  });
+
+  table.on("cellClick", (_e, cell) => {
+    cell.getTable().deselectRow();
   });
 };

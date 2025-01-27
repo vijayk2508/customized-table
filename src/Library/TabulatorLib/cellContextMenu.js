@@ -1,3 +1,5 @@
+import { addRowMenu } from "./TabulatorHelper";
+
 function copy(_e, cell) {
   const cellValue = cell.getValue(); // Get the cell value
   const cellElement = cell.getElement();
@@ -78,6 +80,7 @@ function paste(e, cell) {
 
 export const cellContextMenu = function (_e) {
   return [
+    ...addRowMenu,
     {
       label: "Copy",
       action: copy,
