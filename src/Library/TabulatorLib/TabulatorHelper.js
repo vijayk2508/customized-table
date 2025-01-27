@@ -1,6 +1,6 @@
 import { deleteColumn, getTransformData } from "../../services/tableService";
 import { cellContextMenu } from "./cellContextMenu";
-import Formatter from "./Formatter";
+import FieldFormatter from "./fieldFormatter";
 
 export const rowContextMenu = [
   {
@@ -67,12 +67,7 @@ const handleAddColumn = ({
   }
 };
 
-export const setColHeaderMenu = ({
-  instanceRef,
-  editingColumn,
-  setColumns,
-  setRows,
-}) => {
+export const setColHeaderMenu = ({ instanceRef, editingColumn }) => {
   const updatedColumns = instanceRef.current.getColumns().map((col) => {
     const colDef = col.getDefinition();
     return colDef.id === 0
@@ -86,8 +81,6 @@ export const setColHeaderMenu = ({
           headerMenu: headerMenu({
             instanceRef,
             editingColumn,
-            setColumns,
-            setRows,
           }),
         };
   });
@@ -128,24 +121,29 @@ export const zerothCol = (instanceRef, _editingColumn) => {
 export const zerothColContextMenu = function (instanceRef, _editingColumn) {
   const selectedRows = instanceRef.current.getSelectedRows();
   const menu = [];
-
   menu.push(
     {
       label: "Add Row Above",
       action: function (_e, cell) {
-        const table = instanceRef.current;
-        const newRow = {}; // Define the structure of the new row
-        const row = cell.getRow();
-        table.addRow(newRow, row, "before"); // Add the new row above the selected row
+        const table = instanceRef.current; // Reference to the Tabulator table instance
+        const newRow = {}; // Define the structure of the new row (e.g., default values)
+        const row = cell.getRow(); // Get the selected row
+        const rowIndex = row.getIndex(); // Get the index of the selected row
+
+        // Add the new row above the selected row
+        table.addRow(newRow, true, rowIndex); // 'true' adds the row before the specified index
       },
     },
     {
       label: "Add Row Below",
       action: function (_e, cell) {
-        const table = instanceRef.current;
-        const newRow = {}; // Define the structure of the new row
-        const row = cell.getRow();
-        table.addRow(newRow, row, "after"); // Add the new row below the selected row
+        const table = instanceRef.current; // Reference to the Tabulator table instance
+        const newRow = {}; // Define the structure of the new row (e.g., default values)
+        const row = cell.getRow(); // Get the selected row
+        const rowIndex = row.getIndex(); // Get the index of the selected row
+
+        // Add the new row below the selected row
+        table.addRow(newRow, false, rowIndex); // 'false' adds the row after the specified index
       },
     }
   );
@@ -407,8 +405,11 @@ export const setFormattedCol = (column, editingColumn, instanceRef) => {
     options.visible = false;
   }
 
-  if (Formatter?.[column?.formatter]) {
-    options.formatter = Formatter?.[column?.formatter];
+  if (
+    FieldFormatter?.[column?.formatter] &&
+    typeof column?.formatter === "string"
+  ) {
+    options.formatter = FieldFormatter?.[column?.formatter];
   }
 
   if (["age"].includes(String(currColumn?.field)?.toLowerCase())) {
@@ -528,26 +529,14 @@ export const ajaxResponse = (_url, _params, response, columns) => {
 export const tableCallbacks = ({ table, instanceRef, editingColumn }) => {
   table.on("tableBuilt", () => {
     instanceRef.current = table;
-
-    // const initialColumns = [...columns].map((column) =>
-    //   setFormattedCol(column, editingColumn, instanceRef, setColumns, setRows)
-    // );
-
-    // initialColumns.unshift(zerothCol(instanceRef));
-
-    //table.setColumns(initialColumns);
     table.setPageSize(10);
 
-    //setColHeaderMenu({ instanceRef, editingColumn, setColumns, setRows });
+    setColHeaderMenu({ instanceRef, editingColumn });
   });
 
   table.on("rowSelectionChanged", function () {
     console.log(arguments);
   });
-
-  // table.on("cellEdited", (cell) => {
-  //   cellEdited(cell);
-  // });
 
   table.on("rowClick", async (cell) => {
     await setHeaderNonEditable(editingColumn, instanceRef);

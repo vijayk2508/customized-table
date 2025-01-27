@@ -1,5 +1,8 @@
 import { Chart, registerables } from "chart.js";
-import { BoxPlotController, BoxAndWiskers } from '@sgratzl/chartjs-chart-boxplot';
+import {
+  BoxPlotController,
+  BoxAndWiskers,
+} from "@sgratzl/chartjs-chart-boxplot";
 
 // Register all necessary Chart.js components and the box plot plugin
 Chart.register(...registerables, BoxPlotController, BoxAndWiskers);
@@ -13,7 +16,7 @@ const initializeChart = (canvas, chartConfig) => {
 // Lazy load chart using Intersection Observer
 const lazyLoadChart = (canvas, chartConfig) => {
   const observer = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
         initializeChart(canvas, chartConfig);
         observer.unobserve(entry.target);
@@ -26,13 +29,15 @@ const lazyLoadChart = (canvas, chartConfig) => {
 
 // Line Chart Formatter
 const lineFormatter = function (cell) {
-  const data = cell.getValue();
+  let data = cell.getValue();
+
+  if (!Array.isArray(data)) data = [];
 
   const canvas = document.createElement("canvas");
   const chartConfig = {
     type: "line",
     data: {
-      labels: data.map((_, index) => index),
+      labels: data.map((_, index) => index) || [],
       datasets: [
         {
           data: data,
@@ -67,7 +72,9 @@ const lineFormatter = function (cell) {
 
 // Bar Chart Formatter
 const barFormatter = function (cell) {
-  const data = cell.getValue();
+  let data = cell.getValue();
+
+  if (!Array.isArray(data)) data = [];
 
   const canvas = document.createElement("canvas");
   const chartConfig = {
@@ -107,7 +114,9 @@ const barFormatter = function (cell) {
 
 // Tristate Chart Formatter
 const tristateFormatter = function (cell) {
-  const data = cell.getValue();
+  let data = cell.getValue();
+
+  if (!Array.isArray(data)) data = [];
 
   const canvas = document.createElement("canvas");
   const chartConfig = {
@@ -117,12 +126,13 @@ const tristateFormatter = function (cell) {
       datasets: [
         {
           data: data,
-          backgroundColor: data.map((value) =>
-            value > 0
-              ? "rgba(75, 192, 75, 0.8)" // Green for positive values
-              : value < 0
-              ? "rgba(192, 75, 75, 0.8)" // Red for negative values
-              : "rgba(192, 192, 192, 0.8)" // Gray for zero
+          backgroundColor: data.map(
+            (value) =>
+              value > 0
+                ? "rgba(75, 192, 75, 0.8)" // Green for positive values
+                : value < 0
+                ? "rgba(192, 75, 75, 0.8)" // Red for negative values
+                : "rgba(192, 192, 192, 0.8)" // Gray for zero
           ),
         },
       ],
@@ -151,7 +161,9 @@ const tristateFormatter = function (cell) {
 
 // Box Plot Formatter
 const boxFormatter = function (cell) {
-  const data = cell.getValue();
+  let data = cell.getValue();
+
+  if (!Array.isArray(data)) data = [];
 
   const canvas = document.createElement("canvas");
   const chartConfig = {
@@ -189,26 +201,26 @@ const boxFormatter = function (cell) {
   return canvas;
 };
 
-function progress(){
-  return "progress"
+function progress() {
+  return "progress";
 }
 
-function star(){
-  return "star"
+function star() {
+  return "star";
 }
 
-function tickCross(){
-  return "tickCross"
+function tickCross() {
+  return "tickCross";
 }
 
-const Formatter = {
+const FieldFormatter = {
   lineFormatter,
   barFormatter,
   tristateFormatter,
   boxFormatter,
-  progress : progress(),
-  star : star(),
-  tickCross : tickCross()
+  progress: progress(),
+  star: star(),
+  tickCross: tickCross(),
 };
 
-export default Formatter;
+export default FieldFormatter;
